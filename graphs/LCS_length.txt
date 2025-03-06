@@ -1,0 +1,12 @@
+LCS_length(X, m, Y, n)
+1. for i=0 to m
+2.     C[i,0] = 0                           // Inizializza la prima colonna della tabella C a 0
+3. for j=1 to n                             // La cella C[0,0] è già 0
+4.     C[0,j] = 0                           // Inizializza la prima riga della tabella C a 0
+5. for i=1 to m
+6.     for j=1 to n
+7.         if X[i] == Y[j]                  // Se i caratteri corrispondono
+8.             C[i,j] = C[i-1,j-1] + 1      // Aumenta la lunghezza della LCS
+9.         else
+10.            C[i,j] = max(C[i-1,j], C[i,j-1])  // Prendi il massimo tra i valori sopra e a sinistra
+11. return C                                // Restituisce la tabella C con le lunghezze della LCS
