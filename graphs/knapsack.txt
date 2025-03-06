@@ -1,0 +1,15 @@
+Knapsack01(w, v, W)
+    n = length[v]                                // Ottieni il numero di oggetti
+    for i = 0 to n                               // Inizializza la prima colonna della tabella V a 0
+        V[i, 0] = 0                              // Se la capacità è 0, il valore massimo è 0
+    for w = 0 to W                               // Inizializza la prima riga della tabella V a 0
+        V[0, w] = 0                              // Se non ci sono oggetti, il valore massimo è 0
+    for i = 1 to n                               // Itera su tutti gli oggetti
+        for w = 1 to W                           // Itera su tutte le capacità possibili
+            if w < w[i]                          // Se il peso dell'oggetto i è maggiore della capacità w
+                V[i, w] = V[i-1, w]             // Non includere l'oggetto i
+            else if V[i-1, w] > V[i-1, w-w[i]] + v[i]  // Confronta il valore senza includere l'oggetto i con il valore includendolo
+                V[i, w] = V[i-1, w]             // Se è meglio non includere l'oggetto i, mantieni il valore precedente
+            else
+                V[i, w] = V[i-1, w-w[i]] + v[i]  // Altrimenti, includi l'oggetto i e aggiorna il valore
+    return V                                     // Restituisce la tabella V con i valori massimi per ogni sotto-problema

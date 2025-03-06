@@ -1,0 +1,16 @@
+fractional_knapsack(V, M, X, n, TOT)
+    for k=1 to n
+        X[k] = 0.0                              // Inizializza il vettore X a 0.0 (nessun oggetto selezionato inizialmente)
+    value = 0.0                                 // Inizializza il valore totale a 0.0
+    capacity = TOT                              // Inizializza la capacità residua del knapsack con il valore totale TOT
+    k = 1                                       // Inizia dal primo oggetto
+    while k ≤ n and capacity > 0.0              // Continua finché ci sono oggetti e capacità residua
+        if M[k] ≤ capacity                      // Se l'oggetto k può essere inserito completamente
+            X[k] = 1.0                          // Seleziona l'intero oggetto k
+            capacity = capacity - M[k]          // Riduci la capacità residua
+        else                                    // Se l'oggetto k non può essere inserito completamente
+            X[k] = capacity / M[k]              // Seleziona una frazione dell'oggetto k
+            capacity = 0.0                      // La capacità residua è esaurita
+        value = value + X[k] * V[k]             // Aggiorna il valore totale con il valore dell'oggetto k (o della frazione)
+        k = k + 1                               // Passa al prossimo oggetto
+    return value                                // Restituisce il valore totale ottenuto
