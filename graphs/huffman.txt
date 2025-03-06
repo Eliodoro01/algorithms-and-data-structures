@@ -1,0 +1,28 @@
+// Algoritmo di Huffman
+funzione Huffman(C: Lista<Nodo>) -> Nodo
+    n = C.dimensione()                          // Ottieni il numero di nodi nell'insieme C
+    Q = new CodaPriorità()
+
+    // Inizializza la coda di priorità con i nodi di C
+    for each nodo in C do
+        Q.INSERISCI(nodo)
+    end for
+
+    // Itera per costruire l'albero di Huffman
+    for i = 1 to n - 1 do
+        // Crea un nuovo nodo interno
+        z = new Nodo(simbolo = NULL, frequenza = 0)
+
+        // Estrai i due nodi con le frequenze più basse dalla coda Q
+        z.left = Q.ESTRAI_MINIMO()
+        z.right = Q.ESTRAI_MINIMO()
+
+        // Calcola la frequenza del nuovo nodo z come somma delle frequenze dei figli
+        z.frequenza = z.left.frequenza + z.right.frequenza
+
+        // Inserisci il nuovo nodo z nella coda Q
+        Q.INSERISCI(z)
+    end for
+
+    // Alla fine, l'albero di Huffman è completo. Estrai e restituisci la radice dell'albero
+    return Q.ESTRAI_MINIMO()
