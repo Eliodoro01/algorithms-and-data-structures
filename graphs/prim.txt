@@ -3,26 +3,27 @@
  */
 
 prim(graph, source_node) {
-  for (node in graph.nodes) {
-    node.predecessor = null;
-    node.key = inf;
+  for (node in graph.nodes) {              
+    node.predecessor = null;               // Inizializza il predecessore come nullo
+    node.key = inf;                        // Imposta la chiave a infinito
   }
 
-  source_node.key = 0;
+  source_node.key = 0;                     // Il nodo sorgente ha chiave 0
 
-  queue = new min_priority_queue();
-  
-  for (node in graph.nodes) {
-    queue.add(node);
+  queue = new min_priority_queue();        // Crea una coda di priorità min
+
+  for (node in graph.nodes) {              
+    queue.add(node);                        // Aggiunge tutti i nodi alla coda
   }
 
-  while(!queue.is_empty()) {
-    node = queue.extract_min();
+  while (!queue.is_empty()) {              
+    node = queue.extract_min();             // Estrai il nodo con chiave minima
 
-    for (adj_node in graph.adj(node)) {
-      if (queue.includes(adj_node) && graph.weight(node, adj_node) < adj_node.key) {
-        adj_node.predecessor = node;
-        adj.key = graph.weight(node, adj_node);   // decrese key
+    for (adj_node in graph.adj(node)) {    
+      if (queue.includes(adj_node) && graph.weight(node, adj_node) < adj_node.key) {  // Se il peso dell'arco è minore della chiave attuale
+
+        adj_node.predecessor = node;                      // Aggiorna il predecessore
+        adj_node.key = graph.weight(node, adj_node);      // Aggiorna la chiave (decrease key)
       }
     }
   }
