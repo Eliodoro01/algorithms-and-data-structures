@@ -20,6 +20,3 @@ fractional_knapsack(V, M, X, n, TOT)
         k = k + 1                              // Passa al prossimo oggetto
     return value                               // Restituisce il valore totale ottenuto
 
-
-
-   

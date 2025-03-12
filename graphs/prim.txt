@@ -44,7 +44,7 @@ prim(node, source_node){
   queue.enqueue(source_node)
 
   for(node in G.nodes){
-    queue.add(node)
+    queue.enqueue(node)
   }
 
   while(!queue.is_empty()){
