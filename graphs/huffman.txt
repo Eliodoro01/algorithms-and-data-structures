@@ -26,3 +26,29 @@ funzione Huffman(C: Lista<Nodo>) -> Nodo
 
     // Alla fine, l'albero di Huffman è completo. Estrai e restituisci la radice dell'albero
     return Q.ESTRAI_MINIMO()
+
+
+
+    huffman(C: lista<nodo>){
+
+        n = C.dimensione()
+        Q = new CodaPriorità()
+
+        for each nodo in C
+            Q.Aggiungi(nodo)
+        end if
+
+        for i = 1 to n-1
+            z = new Nodo(simbolo = NULL, frequenza = 0)
+
+            z.left = ESTRAI_MINIMO()
+            z.right = ESTRAI_MINIMO()
+
+            z.frequenza = z.left.frequenza + z.right.frequenza
+
+            Q.INSERISCI(z)
+
+        end for
+        
+    
+    }
