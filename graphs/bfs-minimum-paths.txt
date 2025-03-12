@@ -45,3 +45,51 @@ get_minimum_paths(graph, source_node) {
 
   return minimum_paths;
 }
+
+
+
+bfs(node, source_node){
+
+  min_paths : int = 0
+
+  for(node in G.nodes){
+    node.color = white
+    node.predecessor = null
+    node.d = inf
+    node.count = 0
+  }
+
+  source_node.color = gray
+  source_node.predecessor = null
+  source_node.d = 0
+  source_node.count = 1
+
+  queue = new queue()
+  queue.enqueue(source_node)
+
+  while(!queue.is_empty()){
+    node = queue.extract_min()
+
+    for(adj_node in node.adj){
+      if(adj_node.color == white){
+        adj_node.color = gray
+        adj_node.predecessor = node
+        adj_node.d = node.d + 1
+        adj_node.count = node.count
+
+        queue.enqueue(adj_node)
+      }
+      else if(adj_node.d == node.d + 1){
+        adj_node.count += node.count
+      }
+    }
+  }
+
+  node.color = black
+    if(node.d < k){
+      min_paths += node.count
+    }
+
+    return min_paths
+  
+}

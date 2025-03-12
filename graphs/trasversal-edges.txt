@@ -38,3 +38,41 @@ dfs_visit(node) {
   node.color = black;
   node.f = time + 1;
 }
+
+
+dfs(G){
+
+  for(node in G.nodes){
+    node.color = white
+    node.parent = null
+    node.d = 0
+    node.f = 0
+  }
+
+  for(node in G.nodes){
+    if(node.color == white){
+      dfs_visit(node)
+    }
+  }
+}
+
+dfs_visit(node){
+
+  node.color = gray
+  node.d = time + 1
+
+  for(adj_node in node.adj){
+    if(adj_node.color == black){
+      if(node.d > adj_node.d && node.f > adj_node.f){
+        trasversal_edges++
+      }
+    }
+    else if(adj_node.color == white){
+      adj_node.parent = node
+      dfs_visit(adj_node)
+    }
+  }
+
+  node.color = black
+  node.f = time +1
+}

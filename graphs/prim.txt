@@ -28,3 +28,33 @@ prim(graph, source_node) {
     }
   }
 }
+
+
+prim(node, source_node){
+
+  for(node in G.node){
+    node.key = inf
+    node. predecessor = null
+  }
+
+  source_node.key = 0
+
+  queue = new min_priority_queue()
+
+  queue.enqueue(source_node)
+
+  for(node in G.nodes){
+    queue.add(node)
+  }
+
+  while(!queue.is_empty()){
+
+    node = queue.extract_min()
+    for(adj_node in node.adj){
+      if(queue.includes(adj_node) && G.weight(node, adj_node) < adj_node.key){
+        adj_node.key = G.weight(node, adj_node)
+        adj_node.predecessor = node
+      }
+    }
+  }
+}

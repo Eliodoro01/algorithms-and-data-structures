@@ -20,3 +20,90 @@ kruskal(graph) {
 
   return set                    	               // return the minimum spanning tree created
 }
+
+make_set(node) {
+  node.parent = node;
+  node.rank = 0;
+}
+
+find_set(node) {
+  if (node.parent != node) {
+    node.parent = find_set(node.parent);  // path compression
+  }
+  return node.parent;
+}
+
+union(node1, node2) {
+  root1 = find_set(node1);
+  root2 = find_set(node2);
+
+  if (root1 != root2) {
+    if (root1.rank > root2.rank) {
+      parent[root2] = root1;   // join root2 under root1
+    } else if (root1.rank < root2.rank) {
+      parent[root1] = root2;   // join root1 under root2
+    } else {
+      parent[root2] = root1;   // join root2 under root1 and increase root1 rank
+      root1.rank += 1;
+    }
+  }
+}
+
+
+
+kruskal(G){
+
+  set = new set()
+
+  for(node in G.nodes){
+    make_set(node)
+  }
+
+  sort(edges)
+
+  for(edge in G.edges){
+    if(find_set(edge.first_node) != find_set(edge.second_node)){
+      union(edge.first_node, edge.second_node)
+      set.add(edge)
+    }
+  }
+
+  return set
+
+}
+
+
+make_set(node){
+
+  node.parent = node
+  node.rank = 0
+}
+
+find_set(node){
+
+  if(node.parent != node){
+    node.parent = find_set(node.parent)
+  }
+
+  return node.parent
+}
+
+union(node1,node2){
+
+  root1 = find_set(node1)
+  root2 = find_set(node2)
+
+  if(root1 != root2){
+    if(roo1.rank > root2.rank){
+      parent[root2] = root1
+    }
+    else if(root1.rank < root2.rank){
+      parent[root1] = root2
+    }
+
+    else{
+      parent[root2] = root1
+      root1.rank +=1
+    }
+  }
+}
