@@ -28,27 +28,25 @@ funzione Huffman(C: Lista<Nodo>) -> Nodo
     return Q.ESTRAI_MINIMO()
 
 
+    huffman(C : lista<nodo>){
 
-    huffman(C: lista<nodo>){
+        n = C.lenght()
+        Q = new priority_queue()
 
-        n = C.dimensione()
-        Q = new CodaPriorità()
+        for each nodo in C{
+            Q.enqueue(nodo)
+        }
 
-        for each nodo in C
-            Q.Aggiungi(nodo)
-        end if
-
-        for i = 1 to n-1
+        for i = 1 to n-1{
             z = new Nodo(simbolo = NULL, frequenza = 0)
 
-            z.left = ESTRAI_MINIMO()
-            z.right = ESTRAI_MINIMO()
+            z.left = Q.extract_min()
+            z.right = Q.extract_min()
 
-            z.frequenza = z.left.frequenza + z.right.frequenza
+            z.frequenza = z.left.frequenza + x.right.frequenza
 
-            Q.INSERISCI(z)
+            Q.enqueue(z)
+        }
 
-        end for
         
-    
     }
