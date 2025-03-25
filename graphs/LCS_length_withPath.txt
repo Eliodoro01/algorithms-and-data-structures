@@ -60,7 +60,7 @@ lcs_lengt(X,m,Y,n){
     for i = 1 to m{
         for j = 1 to n{
             if X[i] == Y[j]{
-                C[i,0] = C[i-1,j-1] + 1
+                C[i,j] = C[i-1,j-1] + 1
                 P[i,j] = "\"
             }
             else if(C[i-1, j] > C[i,j-1]){

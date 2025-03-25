@@ -20,6 +20,9 @@ dfs(graph) {
   }
 }
 
+
+trasversal_edges: int = 0
+
 dfs_visit(node) {
   node.color = gray;
   node.d = time + 1;
@@ -44,9 +47,9 @@ dfs(G){
 
   for(node in G.nodes){
     node.color = white
-    node.parent = null
+    node.predecessor = null
     node.d = 0
-    node.f = 0
+    node.t = 0
   }
 
   for(node in G.nodes){
@@ -56,23 +59,19 @@ dfs(G){
   }
 }
 
+
 dfs_visit(node){
 
   node.color = gray
   node.d = time + 1
 
-  for(adj_node in node.adj){
-    if(adj_node.color == black){
-      if(node.d > adj_node.d && node.f > adj_node.f){
-        trasversal_edges++
-      }
-    }
-    else if(adj_node.color == white){
-      adj_node.parent = node
+  for(adj+node in node.adj){
+    if(adj_node.color == white){
+      adj_node.predecessor = node
       dfs_visit(adj_node)
     }
+    else if (adj_node.color == black && node.d > adj_node.d && node.f < adj_node.f){
+      trasversal_edges ++
+    } 
   }
-
-  node.color = black
-  node.f = time +1
 }

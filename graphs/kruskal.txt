@@ -63,25 +63,23 @@ kruskal(G){
 
   for(edge in G.edges){
     if(find_set(edge.first_node) != find_set(edge.second_node)){
-      union(edge.first_node, edge.second_node)
       set.add(edge)
+      union(edge.first_node, edge.second_node)
+      
     }
   }
-
   return set
-
 }
-
 
 make_set(node){
 
-  node.parent = node
+  node.predecessor = node
   node.rank = 0
 }
 
 find_set(node){
 
-  if(node.parent != node){
+  if(node.parent!= node){
     node.parent = find_set(node.parent)
   }
 
@@ -93,14 +91,13 @@ union(node1,node2){
   root1 = find_set(node1)
   root2 = find_set(node2)
 
-  if(root1 != root2){
-    if(roo1.rank > root2.rank){
+  if(root1!=root2){
+    if(root1.rank > root2.rank ){
       parent[root2] = root1
     }
-    else if(root1.rank < root2.rank){
+    else if (root2.rank > root1.rank){
       parent[root1] = root2
     }
-
     else{
       parent[root2] = root1
       root1.rank +=1

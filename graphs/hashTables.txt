@@ -1,0 +1,34 @@
+Insert e search con indirizzamento aperto
+
+*/Data un hash table H che utilizza il metodo dell'indirizzamento aperto per risolvere il problema delle collisioni. Si supponga di risolvere il problema della cancellazione 
+inserendo il simbolo # nella locazione contenente il termine che si vuole cancellare. Scrivere, 
+in pseudocodice, le funzioni INSERISCI e RICERCA debbano essere modificate opportunamente in una tabella di Hash H ad indirizzamento aperto che supporti la cancellazione./*
+
+
+INSERISCI(H, k)                         // H = tabella, k = elemento da inserire, m = size hash table
+    i = 0
+    while i < m                         // Fino a che tutti gli slot sono stati esaminati (tabella piena)
+        j = h(k, i)                     // Calcola la posizione nella tabella hash usando la funzione hash h(k, i)
+        if H[j] == NIL or H[j] == '#'   // Se il bucket è vuoto o cancellato
+            H[j] = k                    // Inserisci la chiave
+            return j                    // Restituisci la posizione di inserimento
+        else if H[j] == k               // Se la chiave è già presente
+            return -1                   // Chiave duplicata (gestione dipende dai requisiti)
+        else
+            i = i + 1                   // Prova il prossimo slot (linear probing o altro metodo)                     
+    return "overflow"                   // Tabella piena
+
+
+
+    RICERCA(H, k)
+    i = 0
+    while i < m                       // Fino a che tutti gli slot sono stati esaminati
+        j = h(k, i)                   // Calcola la posizione nella tabella hash
+        if H[j] == k                  // Se troviamo la chiave
+            return j                  // Restituisci la posizione
+        if H[j] == NIL                // Se incontriamo un bucket vuoto (non cancellato)
+            return -1                 // Chiave non presente
+        i = i + 1                     // Prova il prossimo slot                   
+    return -1                         // Chiave non trovata
+
+
