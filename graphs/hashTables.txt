@@ -32,3 +32,19 @@ INSERISCI(H, k)                         // H = tabella, k = elemento da inserire
     return -1                         // Chiave non trovata
 
 
+    CANCELLA(HashTable T, chiave k):
+    i = 0
+    j = h(k, i)                                 // Calcola l'indice iniziale con funzione hash
+    
+    // Cerca la chiave nella tabella
+    while T[j] != NIL && i < m:
+        if T[j] != '#' E T[j].chiave == k:
+            // Trovato elemento da cancellare
+            T[j] = '#'                          // Marca la posizione come cancellata
+            return "Elemento cancellato con successo"
+        
+        i = i + 1
+        j = h(k, i)                             // Calcola il prossimo indice con sondaggio
+        
+    // Se arriva qui, la chiave non è stata trovata
+    return "Elemento non presente nella tabella"
