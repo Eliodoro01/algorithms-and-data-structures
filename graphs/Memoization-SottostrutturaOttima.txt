@@ -1,0 +1,25 @@
+*/Scrivi un algoritmo in pseuduocodice che utilizzando la memorization restituisce
+F(x,y)= max {F(x-1,y-1)+1, F(x-1,y),F(x,y-1)}. Indicare se gode della Sottostruttura Ottima/*
+
+
+ALGORITMO F(x, y, memo)
+    // Caso base
+    SE x = 0 OPPURE y = 0 ALLORA
+        RESTITUISCI 0
+    
+    // Verifica se il valore è già stato calcolato
+    SE memo[x][y] ≠ -1 ALLORA
+        RESTITUISCI memo[x][y]
+    
+    // Calcola ricorsivamente i sottoproblemi
+    valore1 = F(x-1, y-1, memo) + 1
+    valore2 = F(x-1, y, memo)
+    valore3 = F(x, y-1, memo)
+    
+    // Trova il massimo tra i tre valori
+    risultato = MAX(valore1, valore2, valore3)
+    
+    // Memorizza il risultato prima di restituirlo
+    memo[x][y] = risultato
+    
+    RESTITUISCI risultato
