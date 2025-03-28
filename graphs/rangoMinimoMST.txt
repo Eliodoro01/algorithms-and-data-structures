@@ -1,0 +1,35 @@
+*/Ritornare il nodo di rango minimo di un MST/*
+
+kruskal(graph) {
+    min_rank_node = NULL
+    min_rank = INFINITY
+    mst_edges = new set()  // Archi dell'MST
+    nodes_in_mst = new set()  // Nodi nell'MST
+    
+    for (node in graph.nodes) {
+        make_set(node)
+    }
+    
+    sort(graph.edges)  // Ordina gli archi per peso crescente
+    
+    for (edge in graph.edges) {
+        if (find_set(edge.first_node) != find_set(edge.second_node)) {
+            mst_edges.add(edge)
+            union(edge.first_node, edge.second_node)
+            
+            // Aggiungi i nodi dell'arco all'MST
+            nodes_in_mst.add(edge.first_node)
+            nodes_in_mst.add(edge.second_node)
+        }
+    }
+    
+    // Trova il nodo con rango minimo nell'MST
+    for (node in nodes_in_mst) {
+        if (node.rank < min_rank) {
+            min_rank = node.rank
+            min_rank_node = node
+        }
+    }
+    
+    return min_rank_node  // Restituisci il nodo di rango minimo nell'MST
+}
