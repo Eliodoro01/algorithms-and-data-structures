@@ -4,8 +4,14 @@
 
 cycles: int = 0
 self_loops: int = 0
+time: int = 0
 
 dfs(graph) {
+
+  time = 0
+  self_loops = 0
+  cycles = 0
+
   for (node in graph.nodes) {
     node.color = white;
     node.predecessor = null;
@@ -20,68 +26,25 @@ dfs(graph) {
 }
 
 dfs_visit(node) {
+  time += 1
   node.color = gray;
-  node.d = time + 1;
+  node.d = time;
 
   for (adj_node in node.adj) {
-    if (adj_node == node) {
-      // self loop
-      self_loops++;
+    if (adj_node == node) {                         
+      self_loops++;                           // self loop
     } else if (adj_node.color == white) {
       adj_node.predecessor = node;
 
       dfs_visit(adj_node);
     } else if (adj_node.color == gray) {
-      // cycle
-      cycles++;
+      cycles++;                               // cycle
     }
   }
 
+  time += 1
+  node.f = time;
   node.color = black;
-  node.f = time + 1;
 }
 
 
-self_loop : int = 0
-cycles : int = 0
-
-dfs(G){
-
-  for(node in G.nodes){
-    node.color = white
-    node.predecessor = null
-    node.d = 0
-    node.f = 0
-  }
-
-  for(node in nodes){
-    if(node.color == white){
-      dfs_visit(node)
-    }
-  }
-}
-
-
-dfs_visit(node){
-
-  node.color = gray
-  node.d = time +1
-
-  for(adj in node.adj){
-    if(adj_node == node){
-      self_loop++
-    }
-    else if(adj_node.color == white){
-      adj_node.color = gray
-      adj_node.predecessor = node
-
-      dfs_visit(adj_node)
-    }
-
-    else if(adj_node.color == gray){
-      cycles++
-    }
-  }
-  node.color = black
-  node.f = time + 1
-}

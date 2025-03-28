@@ -1,0 +1,50 @@
+/*Grafo con funzione perso W:E->R con un algoritmo ricorsivo che conta il numero di nodi nel più lungo ciclo di G*/
+
+time: int = 0
+max_cycle_lenght: int = 0
+
+dfs(graph){
+
+    time = 0
+    max_cycle_lenght = 0
+
+    for each node in graph.nodes{
+        node.color = white
+        node.d = 0
+        node.f =0
+        node.predecessor = NULL
+        node.depth = 0
+    }
+
+    for node in graph.nodes{
+        if node.color == white{
+            max_cycle_length = max(max_cycle_length, dfs_visit(node))
+        }
+    }
+}
+
+
+dfs_visit(node){
+
+    time = time + 1
+    node.color = gray
+    node.d = time
+
+    for adj_node in node.adj{
+        if adj_node.color == gray{
+            cycle_length = node.depth - adj_node.depth + 1
+            max_cycle_length = max(max_cycle_length, cycle_length)
+        }
+        else if adj_node.color == white{
+            adj_node.depth = node.depth + 1
+            adj_node.predecessor = node
+            max_cycle_lenght = max(max_cycle_lenght, dfs_visit(adj_node))
+        }
+    }
+
+    time = time + 1
+    node.f = time
+    node.color = black 
+
+    return max_cycle_lenght
+}

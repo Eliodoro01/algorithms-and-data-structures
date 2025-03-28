@@ -3,62 +3,62 @@
  * t_graph = transposed graph (graph with reversed edges)
  */
 
-dfs (graph) {
-  stack = new stack();
+dfs(graph) {                                           // Funzione principale DFS per trovare SCC
+  stack = new stack();                                  // Stack per tenere traccia dell'ordine di visita
 
-  for (node in graph.nodes) {
-    node.predecessor = null;
-    node.d = 0;
-    node.color = white;
+  for (node in graph.nodes) {                          // Inizializzazione dei nodi
+    node.predecessor = null;                           // Nessun predecessore all'inizio
+    node.d = 0;                                        // Inizializzazione del tempo di scoperta
+    node.color = white;                                // Tutti i nodi inizialmente bianchi (non visitati)
   }
 
-  for (node in graph.nodes) {
-    if (node.color == white) {
-      dfs_visit_1(node, stack);
+  for (node in graph.nodes) {                          // Prima DFS per ordinare i nodi
+    if (node.color == white) {                         // Se il nodo non è stato visitato
+      dfs_visit_1(node, stack);                        // Chiamata alla funzione di visita
     }
   }
 
-  t_graph = create_t_graph();
+  t_graph = create_t_graph();                          // Creazione del grafo trasposto
 
-  while (!stack.is_empty()) {
-    node = stack.pop();
+  while (!stack.is_empty()) {                         // Seconda DFS sul grafo trasposto
+    node = stack.pop();                               // Prendiamo un nodo dallo stack
 
-    if (node.color == white) {
-      dfs_visit_2(node, t_graph);
+    if (node.color == white) {                        // Se il nodo non è stato ancora visitato
+      dfs_visit_2(node, t_graph);                     // Chiamata alla funzione di visita sul grafo trasposto
     }
   }
 
-  scc = predecessor - subgraph;
+  scc = predecessor - subgraph;                       // Creazione delle SCC dai predecessori
 }
 
-dfs_visit_1(node, stack) {
-  node.color = gray;
-  node.d = time + 1;
+dfs_visit_1(node, stack) {                            // Funzione di visita per la prima DFS
+  node.color = gray;                                  // Nodo in fase di visita
+  node.d = time + 1;                                  // Aggiornamento del tempo di scoperta
 
-  for (adj_node in node.adj) {
-    if (adj_node.color == white) {
-      adj_node.predecessor = node;
-      dfs_visit_1(node, stack);
+  for (adj_node in node.adj) {                        // Per ogni nodo adiacente
+    if (adj_node.color == white) {                    // Se non è stato visitato
+      adj_node.predecessor = node;                    // Assegniamo il predecessore
+      dfs_visit_1(node, stack);                       // Visitiamo ricorsivamente
     }
   }
 
-  node.color = black;
-  node.f = time + 1;
+  node.color = black;                                 // Nodo completamente visitato
+  node.f = time + 1;                                  // Aggiornamento del tempo di fine visita
 
-  stack.push(node);
+  stack.push(node);                                   // Aggiungiamo il nodo allo stack
 }
 
-dfs_visit_2(node, t_graph) {
-  node.color = gray;
-  node.d = time + 1;
+dfs_visit_2(node, t_graph) {                         // Funzione di visita per la seconda DFS
+  node.color = gray;                                  // Nodo in fase di visita
+  node.d = time + 1;                                  // Aggiornamento del tempo di scoperta
 
-  for (t_adj_node in node.t_adj_node) {
-    if (color[t_adj_node] == white) {
-      predecessor.t_adj_node = node;
-      dfs_visit_2(t_adj_node, t_graph);
+  for (t_adj_node in node.t_adj_node) {              // Per ogni nodo adiacente nel grafo trasposto
+    if (color[t_adj_node] == white) {                // Se non è stato visitato
+      predecessor.t_adj_node = node;                 // Assegniamo il predecessore
+      dfs_visit_2(t_adj_node, t_graph);              // Visitiamo ricorsivamente
     }
   }
 
-  node.f = time + 1;
-  node.color = black;
+  node.f = time + 1;                                  // Aggiornamento del tempo di fine visita
+  node.color = black;                                 // Nodo completamente visitato
 }
