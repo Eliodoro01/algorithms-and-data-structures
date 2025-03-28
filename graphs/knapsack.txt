@@ -1,70 +1,42 @@
-KnapsackProblem(weights, values, maxCapacity)
-    numItems = length(values)
+function KnapsackProblem(weights, values, maxCapacity):
+    numItems = length(values)                      # Numero totale di oggetti
     
-    // Crea una tabella di dimensione [numItems+1][maxCapacity+1]
-    // Ogni cella rappresenterà il valore massimo ottenibile con:
-    // - i primi i oggetti (riga i)
-    // - capacità dello zaino j (colonna j)
-    Create table[numItems+1][maxCapacity+1]
-    
-    // Caso base: zaino vuoto o nessun oggetto disponibile
+    Create table[numItems+1][maxCapacity+1]       # Creiamo la tabella DP
+
     for i = 0 to numItems
-        table[i][0] = 0
+        table[i][0] = 0                           # Caso base: nessuna capacità, valore 0
     for c = 0 to maxCapacity
-        table[0][c] = 0
-        
-    // Per ogni oggetto
-    for item = 1 to numItems
-        // Per ogni possibile capacità dello zaino
-        for currentCapacity = 1 to maxCapacity
+        table[0][c] = 0                           # Caso base: nessun oggetto, valore 0
+
+    for item = 1 to numItems                      # Iteriamo sugli oggetti
+        for currentCapacity = 1 to maxCapacity                      # Iteriamo sulle capacità
             
-            // Se l'oggetto è troppo pesante, non possiamo includerlo
-            if weights[item] > currentCapacity
-                // Prendiamo il valore massimo senza considerare questo oggetto
-                table[item][currentCapacity] = table[item-1][currentCapacity]
-            
-            // Altrimenti, prendiamo il massimo tra:
+            if weights[item] > currentCapacity                      # Se l'oggetto è troppo pesante
+                table[item][currentCapacity] = table[item-1][currentCapacity]  # Non lo includiamo
             else
-                // 1. Non includere l'oggetto corrente
-                valueWithout = table[item-1][currentCapacity]
-                
-                // 2. Includere l'oggetto corrente
-                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]
-                
-                // Salviamo il valore maggiore
-                table[item][currentCapacity] = max(valueWithout, valueWith)
+                valueWithout = table[item-1][currentCapacity]                     # Valore senza includere l'oggetto
+                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]  # Valore con l'oggetto
+                table[item][currentCapacity] = max(valueWithout, valueWith)       # Prendiamo il massimo
     
-    // Il valore massimo si trova nell'ultima cella della tabella
-    return table[numItems][maxCapacity]
+    return table[numItems][maxCapacity]          # Restituiamo il massimo valore ottenibile
 
+function Knapsack01(weights, values, maxCapacity):
+    numItems = length(values)                      # Numero totale di oggetti
 
+    create table[numItems + 1][maxCapacity+1]       # Creiamo la tabella DP
 
+    for i = 0 to numItems
+        table[i][0] = 0                           # Caso base: nessuna capacità, valore 0
+    for c = 0 to maxCapacity
+        table[0][c] = 0                           # Caso base: nessun oggetto, valore 0
 
+    for item = 1 to numItems                      # Iteriamo sugli oggetti
+        for currentCapacity = 1 to maxCapacity   # Iteriamo sulle capacità
+            if weights[item] > currentCapacity    # Se l'oggetto è troppo pesante
+                table[item][currentCapacity] = table[item-1][currentCapacity]  # Non lo includiamo
+            else
+                valueWithout = table[item-1][currentCapacity]                     # Valore senza includere l'oggetto
+                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]  # Valore con l'oggetto
+                table[item][currentCapacity] = max(valueWith, valueWithout)       # Prendiamo il massimo
 
-Knapsack01(weights, values, maxCapacity){
-    numItems = lenght(values)
-
-    create table[numItems + 1][maxCapacity+1]
-
-    for(i=0 to numItems){
-        table[i][0] = 0
-    }
-    for(c=0 to maxCapacity){
-        table[0][c] = 0
-    }
-
-    for(item = 1 to numItems){
-        for(currentCapacity = 1 to maxCapacity){
-            if(weights[item] > currentCapacity){
-                table[item][currentCapacity] = table[item-1][currentCapacity]
-            }
-            else{
-                valueWithout = table[item-1][currentCapacity]
-                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]
-                table[item][currentCapacity] = max(valueWith, valueWithout)
-            }
-        }
-    }
-
-    return table[numItems][maxCapacity]
-} 
+    return table[numItems][maxCapacity]          # Restituiamo il massimo valore ottenibile
