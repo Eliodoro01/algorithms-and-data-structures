@@ -38,7 +38,7 @@ INSERISCI(H, k)                         // H = tabella, k = elemento da inserire
     
     // Cerca la chiave nella tabella
     while T[j] != NIL && i < m:
-        if T[j] != '#' E T[j].chiave == k:
+        if T[j] != '#' && T[j].chiave == k:
             // Trovato elemento da cancellare
             T[j] = '#'                          // Marca la posizione come cancellata
             return "Elemento cancellato con successo"
