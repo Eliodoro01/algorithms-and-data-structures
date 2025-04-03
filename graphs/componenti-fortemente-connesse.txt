@@ -1,0 +1,158 @@
+/*
+Dato un grafo G = (V,E) si scriva in pseudocodice un algoritmo che calcoli le componenti
+fortemente connesse del grafo. Si descriva lo pseudocodice di ogni funzione richiamata
+*/
+
+
+// Prima DFS per calcolare i tempi di fine visita
+DFS(G)
+    for each vertex u in G.V
+        u.color = WHITE
+        u.parent = NIL
+    time = 0
+    S = empty stack  // Stack per memorizzare i vertici in ordine di tempo di fine
+    for each vertex u in G.V
+        if u.color == WHITE
+            DFS-VISIT(G, u, S)
+    return S
+
+DFS-VISIT(G, u, S)
+    u.color = GREY
+    time = time + 1
+    u.discovery = time
+    for each vertex v in G.Adj[u]
+        if v.color == WHITE
+            v.parent = u
+            DFS-VISIT(G, v, S)
+    u.color = BLACK
+    time = time + 1
+    u.finish = time
+    S.push(u)  // Aggiungi il vertice allo stack quando è completamente esplorato
+
+// Funzione per trasporre il grafo
+TRANSPOSE-GRAPH(G)
+    GT = new Graph
+    GT.V = G.V
+    for each vertex u in G.V
+        for each vertex v in G.Adj[u]
+            GT.Adj[v].add(u)  // Inverti la direzione degli archi
+    return GT
+
+// Algoritmo principale per trovare le SCC
+SCC(G)
+    // Passo 1: Esegui DFS sul grafo originale e ordina i vertici per tempo di fine decrescente
+    S = DFS(G)
+    
+    // Passo 2: Calcola il grafo trasposto
+    GT = TRANSPOSE-GRAPH(G)
+    
+    // Passo 3: Esegui DFS sul grafo trasposto nell'ordine determinato dallo stack
+    for each vertex u in GT.V
+        u.color = WHITE
+        u.parent = NIL
+    
+    SCCs = empty list
+    while S is not empty
+        u = S.pop()
+        if u.color == WHITE
+            current_SCC = empty list
+            DFS-VISIT-SCC(GT, u, current_SCC)
+            SCCs.add(current_SCC)
+    return SCCs
+
+DFS-VISIT-SCC(GT, u, current_SCC)
+    u.color = GREY
+    current_SCC.add(u)  // Aggiungi il vertice alla componente corrente
+    for each vertex v in GT.Adj[u]
+        if v.color == WHITE
+            v.parent = u
+            DFS-VISIT-SCC(GT, v, current_SCC)
+    u.color = BLACK
+
+
+
+
+time = 0
+
+// Prima DFS per calcolare i tempi di fine visita
+DFS(G){
+    for node in G.nodes{
+        node.color = white
+        node.parent = null
+    }
+    S = new stack()  // Stack per memorizzare i vertici in ordine di tempo di fine
+    for node in G.nodes{
+        if node.color == white{  
+            DFS_VISIT(G, node, S)
+        }
+    }
+    return S
+}
+
+DFS_VISIT(G, node, S){
+    time = time + 1
+    node.color = gray 
+    node.d = time
+    for adj_node in node.adj{
+        if adj_node.color == white{
+            adj_node.parent = node
+            DFS_VISIT(G, adj_node, S)  
+        }
+    }
+    time = time + 1
+    node.color = black
+    node.f = time 
+    S.push(node) // Aggiungi il vertice allo stack quando è completamente esplorato
+}
+
+// Funzione per trasporre il grafo
+TRANSPOSE_GRAPH(G){
+    GT = new Graph()
+    GT.nodes = G.nodes
+    for node in G.nodes{
+        GT.adj[node] = new list()  // Inizializza la lista di adiacenza
+    }
+    for node in G.nodes{
+        for adj_node in node.adj{
+            GT.adj[adj_node].add(node)  
+        }    
+    }
+    return GT
+}
+
+// Algoritmo principale per trovare le SCC
+SCC(G){
+    // Passo 1: Esegui DFS sul grafo originale e ordina i vertici per tempo di fine decrescente
+    S = DFS(G)
+    
+    // Passo 2: Calcola il grafo trasposto
+    GT = TRANSPOSE_GRAPH(G)
+    
+    // Passo 3: Esegui DFS sul grafo trasposto nell'ordine determinato dallo stack
+    for node in GT.nodes{
+        node.color = white
+        node.parent = null
+    }
+    SCCs = new list()
+    while (!S.is_empty()){
+        node = S.pop()
+        if node.color == white{
+            current_SCC = new list()
+            DFS_VISIT_SCC(GT, node, current_SCC)
+            SCCs.add(current_SCC)
+        }
+    }
+    return SCCs
+}
+
+DFS_VISIT_SCC(GT, node, current_SCC){
+    node.color = gray
+    current_SCC.add(node)  // Aggiungi il vertice alla componente corrente
+    for adj_node in node.adj{  
+        if adj_node.color == white{
+            adj_node.parent = node  
+            DFS_VISIT_SCC(GT, adj_node, current_SCC)
+        }
+    }
+    node.color = black
+}
