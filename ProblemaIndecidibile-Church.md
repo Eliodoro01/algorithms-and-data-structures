@@ -1,4 +1,4 @@
-# Esemio problema indecidibile Tesi di Church
+# Esempio problema indecidibile Tesi di Church
 
 I **problemi indecidibili** sono problemi che i **calcolatori non sono in grado di risolvere**,
 un esempio può essere il caso in cui un programma in grado di esaminare qualunque programma P, e dire se P, eseguito con I come input, stampa "Ciao Mondo".
