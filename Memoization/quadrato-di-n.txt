@@ -1,0 +1,21 @@
+/**
+Data l'equazione ricorrente QUAD(n) = QUAD(n-1) + QUAD(n-2) + 6n - 5 scrivere un algoritmo
+usando la memoization che usandola calcoli il quadrato di n
+*//
+
+def quadrato(n, Q):
+    if n == 0:
+        return 0
+    if n == 1:
+        return 1
+    if Q[n] != -1:      # Controllo se il valore è già stato calcolato
+        return Q[n]
+    
+    Q[n] = quadrato(n-1, Q) + quadrato(n-2, Q) + 6*n - 5
+    return Q[n]
+
+def Quad(n):
+    Q = [-1] * (n + 1)        # Inizializzo la tabella di memoization
+    return quadrato(n, Q)
+
+

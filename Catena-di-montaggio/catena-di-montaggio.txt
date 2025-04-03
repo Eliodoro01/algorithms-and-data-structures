@@ -1,0 +1,28 @@
+
+FASTEST(a, t, e, x, n)
+    f1[1] = e1 + a1,1   // Ingresso catena 1
+    f2[1] = e2 + a2,1   // Ingresso catena 2
+
+    for j = 2 to n
+        if f1[j-1] <= f2[j-1] + t2[j-1]  // Controllo passaggio alla stazione 1
+            f1[j] = f1[j-1] + a1,j
+            l1[j] = 1
+        else
+            f1[j] = f2[j-1] + t2[j-1] + a1,j
+            l1[j] = 2
+
+        if f2[j-1] <= f1[j-1] + t1[j-1]  // Controllo passaggio alla stazione 2
+            f2[j] = f2[j-1] + a2,j
+            l2[j] = 2
+        else
+            f2[j] = f1[j-1] + t1[j-1] + a2,j
+            l2[j] = 1
+
+    if f1[n] + x1 <= f2[n] + x2  // Uscita
+        f_opt = f1[n] + x1
+        l_opt = 1
+    else
+        f_opt = f2[n] + x2
+        l_opt = 2
+
+    return f_opt, l_opt
