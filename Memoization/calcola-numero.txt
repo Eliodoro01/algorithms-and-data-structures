@@ -1,0 +1,20 @@
+/*
+Risolvere con la tecnica della Memoization il seguente problema "Calcola-Numero" descritto dall'ecquazione di ricorsione:
+
+G(n) = G(n-1) + G(n-2) + G(n-3)
+
+Con G(0) = G(1) = G(2) = 1
+*/
+
+
+Gpro(n)
+    Gr = new vector of size (n+1) initialized with -1
+    return G(n, Gr)
+
+G(n, Gr)
+    if (n == 0 or n == 1 or n == 2)
+        return 1
+    if (Gr[n] != -1)
+        return Gr[n]
+    Gr[n] = G(n-1, Gr) + G(n-2, Gr) + G(n-3, Gr)
+    return Gr[n]
