@@ -1,0 +1,49 @@
+Dato un grafo orientato G = (V,E) ed un intero k appartenente R+ si scriva un algoritmo in pseudocodice
+che restituisca la lista degli archi in avanti del grafo
+
+time = 0 
+dfs(G, k){
+    
+    list = new list()
+	for nodes in G.nodes{
+		node.color = white
+		node.d = 0
+		node.f = 0
+		node.parent = null
+	}
+	
+	for node in G.nodes{
+		if node.color == white{
+			dfs_visit(node, list)
+		}
+	}
+
+    return list
+}
+
+
+dfs_visit(node){
+
+    time = time +1 
+    node.color = gray
+    node.d = time
+
+	for adj_node in node.adj{
+		if ad_node.color == white{
+			adj_node.parent = node
+			dfs_visit(adj_node)
+		}
+		
+		if adj_node.color == black && node.d < adj_node.d{
+			list.push((node, adj_node))
+		}	
+	}
+
+    time = time + 1
+    node.color = black
+    node.f = time
+}
+
+
+
+
