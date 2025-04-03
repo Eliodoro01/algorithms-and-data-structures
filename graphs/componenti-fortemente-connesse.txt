@@ -72,6 +72,12 @@ DFS-VISIT-SCC(GT, u, current_SCC)
 
 
 
+
+
+
+
+
+
 time = 0
 
 // Prima DFS per calcolare i tempi di fine visita
