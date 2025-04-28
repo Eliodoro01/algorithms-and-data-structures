@@ -75,53 +75,70 @@ bfs_visit(graph, root):
     return height
 
 
-/**Soluzione DeepSeek, che dice "l'uso della struttura ALBERO è opzionale siccome si può applicare
-* la bfs direttamente sull' MST", ma poi usa l'albero
+/**Soluzione DeepSeek, FORSE LA PIU' CORRETTA
 */
 
-ALGORITMO AltezzaMST(Grafo G, Nodo R):
-    // Passo 1: Costruisci l'MST con Prim
-    for nodo IN G.nodi:
-        nodo.predecessore = NULL
-        nodo.distanza = INFINITO
+ALTEZZA_MST_RADICATO(G, R)
+    // G è il grafo non orientato, pesato con nodi V e archi E
+    // R è il nodo radice
     
-    R.distanza = 0
-    CodaPriorità = NuovaCodaDiPrioritàMin(G.nodi)  // Usa 'distanza' come chiave
-
-    while CodaPriorità.NonVuota():
-        u = CodaPriorità.EstraiMin()
-        for v IN u.adiacenti:
-            PESO = peso(u, v)
-            if v ∈ CodaPriorità && PESO < v.distanza:
-                v.predecessore = u
-                v.distanza = PESO  // Decrease-key
-
-    // Passo 2: Costruisci l'albero dei figli (per facilitare la BFS)
-    // (Opzionale, ma aiuta a navigare verso il basso invece che solo con predecessori)
-    Albero = {}  // Mappa: nodo → lista dei figli
-    for nodo IN G.nodi:
-        Albero[nodo] = []
-    for OGNI nodo IN G.nodi:
-        if nodo.predecessore ≠ NULL:
-            Albero[nodo.predecessore].Aggiungi(nodo)
-
-    // Passo 3: BFS per calcolare l'altezza
-    Altezza = 0
-    Coda = [R]  // Coda per BFS
-    for nodo IN G.nodi:
-        nodo.distanza_BFS = -1  // Inizializza
-    R.distanza_BFS = 0
-
-    while Coda.NonVuota():
-        u = Coda.Testa()
-        Coda.RimuoviTesta()
-        for figlio IN Albero[u]:
-            figlio.distanza_BFS = u.distanza_BFS + 1
-            if figlio.distanza_BFS > Altezza:
-                Altezza = figlio.distanza_BFS
-            Coda.Aggiungi(figlio)
+    // Costruiamo l'MST usando l'algoritmo di Prim partendo da R
+    MST = PRIM(G, R)
     
-    return Altezza   
+    // Trasformiamo l'MST in un albero orientato con radice R
+    ALBERO = CONVERTI_AD_ALBERO(MST, R)
+    
+    // Calcoliamo l'altezza dell'albero con una visita in profondità
+    ALTEZZA = 0
+    VISITA_ALTEZZA(ALBERO, R, 0, ALTEZZA)
+    
+    return ALTEZZA
+
+PRIM(G, R)
+    // Implementazione standard dell'algoritmo di Prim partendo dal nodo R
+    Inizializza un albero T con solo il nodo R
+    Inizializza una coda di priorità Q con tutti i nodi con distanza ∞
+    Imposta la distanza di R a 0
+    
+    while Q non è vuota do
+        u = nodo in Q con distanza minima
+        Rimuovi u da Q
+        
+        for each vicino v di u in G do
+            if v è in Q e peso(u,v) < distanza[v] then
+                distanza[v] = peso(u,v)
+                padre[v] = u
+    
+    // Costruisci l'MST usando l'array padre
+    MST = grafo con nodi V e archi (v, padre[v]) per ogni v ≠ R
+    return MST
+
+CONVERTI_AD_ALBERO(MST, R)
+    // Converte l'MST non orientato in un albero orientato con radice R
+    ALBERO = new graph          //nuovo grafo orientato con nodi V
+    VISITATI = insieme vuoto  // Per tenere traccia dei nodi visitati
+    queue = new queue[R]
+    VISITATI.add(R)         // Marca la radice come visitata
+    
+    while (!queue.is_empty())
+        node = queue.pop()  //primo nodo in CODA
+        //Rimuovi u da CODA
+        
+        for adj_node in MST.adj_nodes         //each vicino v di u in MST do
+            if  !VISITATI.includes(adj_node)    //v non è stato visitato then
+                ALBERO.add(node, adj_node)  //Aggiungi arco orientato (u → v) ad ALBERO
+                queue.push(adj_node)        //Aggiungi v a CODA
+                VISITATI.add(adj_node)        //Marca v come visitato
+    
+    return ALBERO
+
+VISITA_ALTEZZA(ALBERO, nodo, profondità_corrente, ALTEZZA)
+    // Visita ricorsiva per calcolare l'altezza massima
+    if profondità_corrente > ALTEZZA then
+        ALTEZZA = profondità_corrente
+    
+    for each figlio v di nodo in ALBERO do
+        VISITA_ALTEZZA(ALBERO, v, profondità_corrente + 1, ALTEZZA)
 
 
 
