@@ -75,6 +75,78 @@ bfs_visit(graph, root):
     return height
 
 
+/**Soluzione DeepSeek, che dice "l'uso della struttura ALBERO è opzionale siccome si può applicare
+* la bfs direttamente sull' MST", ma poi usa l'albero
+*/
 
-
+ALGORITMO AltezzaMST(Grafo G, Nodo R):
+    // Passo 1: Costruisci l'MST con Prim
+    for nodo IN G.nodi:
+        nodo.predecessore = NULL
+        nodo.distanza = INFINITO
     
+    R.distanza = 0
+    CodaPriorità = NuovaCodaDiPrioritàMin(G.nodi)  // Usa 'distanza' come chiave
+
+    while CodaPriorità.NonVuota():
+        u = CodaPriorità.EstraiMin()
+        for v IN u.adiacenti:
+            PESO = peso(u, v)
+            if v ∈ CodaPriorità && PESO < v.distanza:
+                v.predecessore = u
+                v.distanza = PESO  // Decrease-key
+
+    // Passo 2: Costruisci l'albero dei figli (per facilitare la BFS)
+    // (Opzionale, ma aiuta a navigare verso il basso invece che solo con predecessori)
+    Albero = {}  // Mappa: nodo → lista dei figli
+    for nodo IN G.nodi:
+        Albero[nodo] = []
+    for OGNI nodo IN G.nodi:
+        if nodo.predecessore ≠ NULL:
+            Albero[nodo.predecessore].Aggiungi(nodo)
+
+    // Passo 3: BFS per calcolare l'altezza
+    Altezza = 0
+    Coda = [R]  // Coda per BFS
+    for nodo IN G.nodi:
+        nodo.distanza_BFS = -1  // Inizializza
+    R.distanza_BFS = 0
+
+    while Coda.NonVuota():
+        u = Coda.Testa()
+        Coda.RimuoviTesta()
+        for figlio IN Albero[u]:
+            figlio.distanza_BFS = u.distanza_BFS + 1
+            if figlio.distanza_BFS > Altezza:
+                Altezza = figlio.distanza_BFS
+            Coda.Aggiungi(figlio)
+    
+    return Altezza   
+
+
+
+//Soluzione senza albero
+
+ALGORITMO AltezzaMST-Ottimizzato(Grafo G, Nodo R):
+    // Passo 1: Esegui Prim per ottenere i predecessori
+    predecessori = Prim(G, R)  // Ritorna un dizionario nodo → predecessore
+    
+    // Passo 2: Trova tutti i figli di ogni nodo (per navigare verso il basso)
+    figli = {}  // Mappa: nodo → lista dei suoi figli nell'MST
+    PER OGNI nodo IN G.nodi:
+        figli[nodo] = []
+    PER OGNI nodo IN G.nodi:
+        SE predecessori[nodo] ≠ NULL:
+            figli[predecessori[nodo]].Aggiungi(nodo)
+    
+    // Passo 3: DFS ricorsiva per calcolare l'altezza
+    FUNZIONE DFS(nodo):
+        altezza_massima = 0
+        PER OGNI figlio IN figli[nodo]:
+            altezza_figlio = DFS(figlio)
+            SE altezza_figlio > altezza_massima:
+                altezza_massima = altezza_figlio
+        RITORNA altezza_massima + 1
+    
+    altezza = DFS(R) - 1  // -1 perché contiamo archi, non nodi
+    RITORNA altezza

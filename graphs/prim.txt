@@ -1,5 +1,8 @@
 /**
  * Prim algorithm
+ * L'algoritmo di Prim è un algoritmo greedy (avido) utilizzato per trovare un 
+ * Minimum Spanning Tree (MST) - cioè un albero di copertura di peso minimo - in un 
+ * grafo connesso, non orientato e pesato.
  */
 
 prim(graph, source_node) {
@@ -30,28 +33,30 @@ prim(graph, source_node) {
 }
 
 
-prim(node, source_node){
+prim(source_node, G){
 
-  for(node in G.nodes){
-    node.kay = inf
-    node.parent = null
-  }
+for nodes in G.node{
+  node.predecessor = NULL
+  node.key = inf
+}
 
-  source_node.key = 0
+source_node.key = 0
 
-  queue = new min_priority_queue()
+queue = new min_priority_queue()
 
-  for(node in G.nodes){
-    queue.enqueue(node)
-  }
+for nodes in G.node{
+  queue.push(node)
+}
 
-  while(!queue.is_empty()){
-    node = queue.extract_min()
-    for(adj_node in node.adj){
-      if(queue.includes(adj_node) && G.weight(node,adj_node) < adj_node.key){
+while(!queue.is_empty()){
+  node = queue.extract_min(){
+    for adj_nodes in G.adj_node{
+      if(queue.includes(adj_node) && weight(node, adj_node) < adj_node.key){
+        adj_node.key = weight(node, adj_node)
         adj_node.predecessor = node
-        adj_node.key = G.weight(node, adj_node)
       }
     }
   }
+}
+
 }

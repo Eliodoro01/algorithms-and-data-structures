@@ -104,3 +104,23 @@ union(node1,node2){
     }
   }
 }
+
+
+kruskal(G){
+
+  set = new set()
+
+  for nodes in G.node{
+    make_set(node)
+  }
+
+  sort(edges)
+
+  for edges in G.edge{
+    if (find_set(edge.first_node) != find_set(edge.second_node)){
+      set.add(edge)
+      union(edge.first_node, edge.second_node)
+    }
+  }
+  return set
+}
