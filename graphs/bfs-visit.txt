@@ -26,7 +26,7 @@ bfs(nodes, source_node) {
     for (adj_node in node.adj) {
       if (adj_node.color == white) {
         adj_node.color = gray;
-        adj_node.d = d.node + 1;
+        adj_node.d = node.d + 1;
         adj_node.predecessor = node;
 
         queue.enqueue(adj_node);
@@ -37,3 +37,35 @@ bfs(nodes, source_node) {
   }
 }
 
+
+bfs(G, source_node){
+
+  for node in G.nodes{
+    node.color = white
+    node.predecessor = null
+    node.d = inf
+  }
+
+  source_node.predecessor = null
+  source_node.color = gray
+  source_node.d = 0
+
+  queue = new queue()
+  queue.enqueue(source_node)
+
+  while(!queue.is_empty()){
+    node = queue.dequeue()
+
+    for adj_node in node.adj_nodes{
+      if adj_node.color == white{
+        adj_node.color = gray
+        adj_node.predecessor = node
+        adj_node.d = node.d + 1
+
+        queue.enqueue(adj_node)
+      }
+    }
+    
+    node.color = black
+  }
+}

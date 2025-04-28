@@ -3,7 +3,7 @@
 kruskal(graph) {
     min_rank_node = NULL
     min_rank = INFINITY
-    mst_edges = new set()  // Archi dell'MST
+    mst = new set()  // Archi dell'MST
     nodes_in_mst = new set()  // Nodi nell'MST
     
     for (node in graph.nodes) {
@@ -14,7 +14,7 @@ kruskal(graph) {
     
     for (edge in graph.edges) {
         if (find_set(edge.first_node) != find_set(edge.second_node)) {
-            mst_edges.add(edge)
+            mst.add(edge)
             union(edge.first_node, edge.second_node)
             
             // Aggiungi i nodi dell'arco all'MST
