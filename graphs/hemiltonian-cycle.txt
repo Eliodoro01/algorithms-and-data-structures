@@ -1,34 +1,82 @@
 /**
- * Dato un grafo non orientato G(V, E), implementare in pseudocodice un algoritmo ricorsivo
- * che restituisca TRUE se in G è presente un ciclo Hamiltoniano e FALSE altrimenti.
+ * Verifica la presenza di un ciclo Hamiltoniano in un grafo non orientato
+ * Un ciclo Hamiltoniano è un percorso che visita ogni vertice esattamente una volta
+ * e ritorna al vertice di partenza.
  */
 
-hamiltonian_cycle(graph):
-    path = []
 
-    for node in graph.nodes
-        path.push(node)
-        if recursive_hamiltonian_cycle(graph, path, node):
+hamiltonian_cycle(graph):
+    path = []  // Percorso corrente
+    
+    // Prova ogni nodo come punto di partenza
+    for start_node in graph.nodes:
+        path.push(start_node)
+        if recursive_hamiltonian_cycle(graph, path, start_node):
             return true
-        path.pop_last()   // Backtracking: delete last element in list
+        path.pop()  // Backtracking
     
     return false
 
 recursive_hamiltonian_cycle(graph, path, current_node):
-    if length(path) = length(graph.nodes):    // if path contains all graph vertices, it verifies if cycle can be closed
-        first = path[0]
-        if graph.edges.includes((current_node, first))
-            return true     // Hamiltonian cycle
-            
+    // Condizione di terminazione: abbiamo tutti i nodi nel percorso
+    if length(path) == length(graph.nodes):
+        // Verifica se possiamo tornare al nodo iniziale
+        first_node = path[0]
+        if first_node in current_node.adjacent_nodes:
+            return true  // Trovato ciclo Hamiltoniano
         return false
     
-    // Recursion: explore not visited adjacent nodes
-    for adj_node in current_node.adj:
-        if !path.includes(adj_node):
-            path.push(adj_node)
-            if recursive_hamiltonian_cycle(graph, path, adj_node):
+    // Esplora i nodi adiacenti non visitati
+    for neighbor in current_node.adjacent_nodes:
+        if neighbor not in path:
+            path.push(neighbor)
+            if recursive_hamiltonian_cycle(graph, path, neighbor):
                 return true
-            
-            path.pop_last()   // Backtracking: delete last element in list
+            path.pop()  // Backtracking
     
-    return false    // if no valid path found
+    return false
+
+
+
+
+
+
+hamiltonian_cycle(G){
+    path = []
+
+    for source_node in G.nodes{
+        path.push(source_node)
+        if recursive_hamiltonian_cycle(G, path, source_node){
+            return true
+        }
+        path.pop()
+    }
+
+    return false
+}
+
+
+recursive_hamiltonian_cycle(G,path, current_node){
+    if lenght(path) == lenght(G.nodes){
+        first_node = path[0]
+
+        if first_node in current_node.adj_nodes{
+            return true
+        }
+
+        return false
+    }
+
+    for adj_node in current_node.adj_nodes{
+        if adj_node not in path{
+            path.push[adj_node]
+
+            if recursive_hamiltonian_cycle(G, path, adj_node){
+                return true
+            }
+            path.pop()
+        }
+    }
+
+    return false
+
