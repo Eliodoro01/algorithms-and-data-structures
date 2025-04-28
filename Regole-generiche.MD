@@ -51,7 +51,7 @@
 > - La **DFS** è spesso implementata con **ricorsione**, mentre la **BFS** richiede una **coda esplicita**.  
 > - La scelta tra DFS e BFS dipende dal problema (es. percorsi vs esplorazione completa).
 
-
+---
 
 Per trovare l'**MST** (Minimum Spanning Tree) si usanon 2 algoritmi, Prim e Kruskal.
 
