@@ -1,25 +1,3 @@
-function KnapsackProblem(weights, values, maxCapacity):
-    numItems = length(values)                      # Numero totale di oggetti
-    
-    Create table[numItems+1][maxCapacity+1]       # Creiamo la tabella DP
-
-    for i = 0 to numItems
-        table[i][0] = 0                           # Caso base: nessuna capacità, valore 0
-    for c = 0 to maxCapacity
-        table[0][c] = 0                           # Caso base: nessun oggetto, valore 0
-
-    for item = 1 to numItems                      # Iteriamo sugli oggetti
-        for currentCapacity = 1 to maxCapacity                      # Iteriamo sulle capacità
-            
-            if weights[item] > currentCapacity                      # Se l'oggetto è troppo pesante
-                table[item][currentCapacity] = table[item-1][currentCapacity]  # Non lo includiamo
-            else
-                valueWithout = table[item-1][currentCapacity]                     # Valore senza includere l'oggetto
-                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]  # Valore con l'oggetto
-                table[item][currentCapacity] = max(valueWithout, valueWith)       # Prendiamo il massimo
-    
-    return table[numItems][maxCapacity]          # Restituiamo il massimo valore ottenibile
-
 function Knapsack01(weights, values, maxCapacity):
     numItems = length(values)                      # Numero totale di oggetti
 
@@ -40,3 +18,34 @@ function Knapsack01(weights, values, maxCapacity):
                 table[item][currentCapacity] = max(valueWith, valueWithout)       # Prendiamo il massimo
 
     return table[numItems][maxCapacity]          # Restituiamo il massimo valore ottenibile
+
+
+
+knapsack01(weights, values, capacity){
+
+    numItems = length(values)
+
+    create table[numItems + 1][maxCapacity + 1]
+
+    for i = 0 to numItems{
+        table[i][0] = 0
+    }
+    for c = 0 to maxCapacity{
+        table[0][c] = 0
+    }
+
+    for item = 1 to numItems{
+        for currentCapacity = 1 to maxCapacity{
+            if weights[item] > currentCapacity{
+                table[item][currentCapacity] = table[item - 1][currentCapacity]
+            }
+            else{
+                valueWithout = table[item-1][currentCapacity]
+                valueWith = values[item] + table[item-1][currentCapacity - weights[item]]
+                table[item][currentCapacity] = max(valueWith, valueWithout)
+            }
+        }
+    }
+
+    return table[numItems][maxCapacity]
+}
