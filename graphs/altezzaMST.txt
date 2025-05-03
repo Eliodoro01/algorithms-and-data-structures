@@ -2,168 +2,50 @@
  * Dato un grafo non orientato, pesato, con radice R. 
  * Calcolare l'altezza del MST radicato in R
  */
-
-prim(graph, source_node):
+prim(graph, root, weights):
     for node in graph.nodes:
-        node.predecessor = null
+        node.predecessor = NIL
         node.key = inf
 
-    source_node.key = 0
+    root.key = 0
+    root.predecessor = NIL
 
-    queue = new min_priority_queue()
-    
-    for node in graph.nodes: 
-        queue.add(node)
+    queue = graph.nodes         // minimum priority queue
 
-    while not queue.is_empty():
+    while queue != ∅:
         node = queue.extract_min()
 
         for adj_node in node.adj:
-            if queue.includes(adj_node) and graph.weight(node, adj_node) < adj_node.key:
+            if adj_node ∈ queue and weights(node, adj_node) < adj_node.key:
                 adj_node.predecessor = node
-                adj_node.key = graph.weight(node, adj_node)    // decrease key
-
-    mst = new set()
-    for node in graph.nodes:
-        if node.predecessor is not null:
-            mst.add((node.predecessor, node))    // into mst there are edges (start, destination)
-
-    return mst
+                adj_node.key = weights(node, adj_node)    // decrease key
 
 
 bfs_visit(graph, root):
-    mst = prim(graph, source_node)
-    tree = {}
-    
-    for edge in mst:
-        tree[edge.first_node] = []
-        tree[edge.second_node] = []
+    prim(graph, root)
 
-        tree[edge.first_node].append(edge.second_node)
-        tree[edge.second_node].append(edge.first_node)
+    max_height = 0
 
-    height = 0
-
-    for node in tree:
-        node.color = white
-        node.distance = inf
-        node.predecessor = null
-
-    root.distance = 0
+    root.d = 0
     root.predecessor = null
     root.color = gray
 
-    queue = new queue()
+    queue = ∅
     queue.append(root)
 
-    while queue:
+    while queue != ∅:
         node = queue.pop()
 
-        if node.distance > height:
-            height = node.distance
-
-        for adj_node in tree[node]:
-            if adj_node.color == white:
-                adj_node.predecessor = node
+        for adj_node in node.adj:
+            if adj_node.color == white and node == adj_node.predecessor:
                 adj_node.color = gray
-                adj_node.distance = node.distance + 1
+                adj_node.d = node.d + 1
+
+                if adj_node.d > max_height:
+                    max_height = adj_node.d
 
                 queue.append(adj_node)
 
         node.color = black
 
-    return height
-
-
-/**Soluzione DeepSeek, FORSE LA PIU' CORRETTA
-*/
-
-ALTEZZA_MST_RADICATO(G, R)
-    // G è il grafo non orientato, pesato con nodi V e archi E
-    // R è il nodo radice
-    
-    // Costruiamo l'MST usando l'algoritmo di Prim partendo da R
-    MST = PRIM(G, R)
-    
-    // Trasformiamo l'MST in un albero orientato con radice R
-    ALBERO = CONVERTI_AD_ALBERO(MST, R)
-    
-    // Calcoliamo l'altezza dell'albero con una visita in profondità
-    ALTEZZA = 0
-    VISITA_ALTEZZA(ALBERO, R, 0, ALTEZZA)
-    
-    return ALTEZZA
-
-PRIM(G, R)
-    // Implementazione standard dell'algoritmo di Prim partendo dal nodo R
-    Inizializza un albero T con solo il nodo R
-    Inizializza una coda di priorità Q con tutti i nodi con distanza ∞
-    Imposta la distanza di R a 0
-    
-    while Q non è vuota do
-        u = nodo in Q con distanza minima
-        Rimuovi u da Q
-        
-        for each vicino v di u in G do
-            if v è in Q e peso(u,v) < distanza[v] then
-                distanza[v] = peso(u,v)
-                padre[v] = u
-    
-    // Costruisci l'MST usando l'array padre
-    MST = grafo con nodi V e archi (v, padre[v]) per ogni v ≠ R
-    return MST
-
-CONVERTI_AD_ALBERO(MST, R)
-    // Converte l'MST non orientato in un albero orientato con radice R
-    ALBERO = new graph          //nuovo grafo orientato con nodi V
-    VISITATI = insieme vuoto  // Per tenere traccia dei nodi visitati
-    queue = new queue[R]
-    VISITATI.add(R)         // Marca la radice come visitata
-    
-    while (!queue.is_empty())
-        node = queue.pop()  //primo nodo in CODA
-        //Rimuovi u da CODA
-        
-        for adj_node in MST.adj_nodes         //each vicino v di u in MST do
-            if  !VISITATI.includes(adj_node)    //v non è stato visitato then
-                ALBERO.add(node, adj_node)  //Aggiungi arco orientato (u → v) ad ALBERO
-                queue.push(adj_node)        //Aggiungi v a CODA
-                VISITATI.add(adj_node)        //Marca v come visitato
-    
-    return ALBERO
-
-VISITA_ALTEZZA(ALBERO, nodo, profondità_corrente, ALTEZZA)
-    // Visita ricorsiva per calcolare l'altezza massima
-    if profondità_corrente > ALTEZZA then
-        ALTEZZA = profondità_corrente
-    
-    for each figlio v di nodo in ALBERO do
-        VISITA_ALTEZZA(ALBERO, v, profondità_corrente + 1, ALTEZZA)
-
-
-
-//Soluzione senza albero
-
-ALGORITMO AltezzaMST-Ottimizzato(Grafo G, Nodo R):
-    // Passo 1: Esegui Prim per ottenere i predecessori
-    predecessori = Prim(G, R)  // Ritorna un dizionario nodo → predecessore
-    
-    // Passo 2: Trova tutti i figli di ogni nodo (per navigare verso il basso)
-    figli = {}  // Mappa: nodo → lista dei suoi figli nell'MST
-    PER OGNI nodo IN G.nodi:
-        figli[nodo] = []
-    PER OGNI nodo IN G.nodi:
-        SE predecessori[nodo] ≠ NULL:
-            figli[predecessori[nodo]].Aggiungi(nodo)
-    
-    // Passo 3: DFS ricorsiva per calcolare l'altezza
-    FUNZIONE DFS(nodo):
-        altezza_massima = 0
-        PER OGNI figlio IN figli[nodo]:
-            altezza_figlio = DFS(figlio)
-            SE altezza_figlio > altezza_massima:
-                altezza_massima = altezza_figlio
-        RITORNA altezza_massima + 1
-    
-    altezza = DFS(R) - 1  // -1 perché contiamo archi, non nodi
-    RITORNA altezza
+    return max_height
