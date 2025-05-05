@@ -20,7 +20,7 @@ dijkstra(graph, weights, source):
 
     while !queue.is_empty():
         node = queue.extract_min()
-        s <- s ∪ node
+        set.add(node)
 
         for adj_node in node.adj:
             relax(node, adj_node, weights)
