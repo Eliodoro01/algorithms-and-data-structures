@@ -1,0 +1,472 @@
+Un dfa è un automa che dopo aver letto una qualsiasi sequenza di input si trova in un unico stato.
+Esso è composto da una quintupla:
+Q = insieme degli stati;
+Epsilon = insieme dei simboli;
+Delta : Q x epsilon ->Q = stato di transizione che accetta in input uno stato ed un simbolo e restituisce in output uno stato
+q_0 = stato iniziale incluso in Q
+F = stato finale o accettante.
+Un nfa invece, è un automa che dopo aver letto una qualsiasi sequenza di input si trova in più stati
+contemporaneamente. Si tratta di un modello teorico ovviamente ed è composto dalla stessa quintupla solo che
+nel terzo caso avremo Delta: Q x epsilon -> P che accetta in input uno stato ed un simbolo ed in output
+restituisce un sottoinsieme di stati.
+
+Un linguaggio accettato di un DFA si definisce come:
+L(A) = {w | delta cappelletto(q_0, w) è in F}
+
+Un linguaggio accettato di un NFA si definisce come:
+L(A) = {W | delta cappelletto(q_0, w) intersecato F != insieme vuoto}
+
+
+Dato un grafo orientato G = (V,E) ed un intero k appartenente R+ si scriva un algoritmo in pseudocodice
+che restituisca la lista degli archi in avanti del grafo
+
+DFS(G)
+  time = 0
+  lista = crea lista []
+   for each u in G.V
+      u.color = BIANCO
+      u.p = NIL
+ for each u in G.V
+   if u.color == BIANCO
+      DFS_VISIT(u, lista)
+ return lista
+
+DFS_VISIT(u, lista)
+   u.color = GRIGIO
+    u.d = time = time + 1
+    for each v in u.adj
+        if v.color == BIANCO
+          v.p = u
+          DFS_VISIT(v, lista)
+        else if v.color == NERO
+             if v.d > u.d
+                lista.add[(u,v)]
+    u.color = NERO
+    u.f = time = time + 1
+
+
+
+
+
+Gennaro è ghiotto di babà. Per il compleanno di Gennaro, sua madre si reca in pasticceria per acquistarne.
+Sfortunatamente la pasticceria non vende babà singoli, ma soltanto N torte di babà. Ogni torta t ha un costo
+C[t] ed un numero di B[t]. Infine, la madre ha deciso di spendere in pasticceria al massimo E euro.
+Scrivere un algoritmo, in pseudocodice, che, ricevendo come input le N torte a disposizione e E la somma
+massima a disposizione, restituisca il numero massimo dei babà che possono essere acquistati. Si assuma che
+non sia possibile acquistare parti di torta.
+
+
+Knapsack_01(W,w,n,V)
+  for w = 0 to W
+     V[0,w] = 0
+  for i = 1 to n
+     V[i,0] = 0
+  for i = 1 to n
+     for w = 1 to W
+         if W[i] <= w
+            V[i,w] = max(V[i-1,w], V[i-1,w-w[i]] + v[i])
+         else
+            V[i,w] = V[i-1, w]
+  return V
+
+Knapsack_01(E,B,n,C)
+   for t = 0 to E
+       C[0,t] = 0
+   for i = 0 to n
+       C[i, 0] = 0
+   for i = 1 to n
+       for t = 1 to E
+           if t[i]<= t
+               C[i,t] = max(C[i-1,t], C[i-1,t-t[i]] + B[i])
+           else
+              C[i,t] = C[i-1,t]
+   return C
+
+
+Dato un grafo connesso non orientato pesato G = (V,E) con pesi w(u,v) ed un vertice r appartenente V,
+si scriva in pseudocodice un algoritmo che restituisca il nodo con la profondità massima del MST radicato in r
+
+
+PRIM(G,w,r)
+  for each u in G.V
+      u.key = infinito
+      u.p = NIL
+      u.d = 0
+  r.key = 0
+  Q = G.V
+  prof_max = 0
+  node_max = r
+  while Q != insieme vuoto
+       u = EXTRACT_MIN(Q)
+       for each v in u.adj
+           if v appartenente Q && v.key > w(u,v)
+                v.p = u
+                v.key = w(u,v)
+                v.d = u.d + 1
+                if v.d > node_max
+                   prof_max = v.d
+                   max_node = v
+  return max_node
+
+
+ FORNIRE UN ESEMPIO DI PROBLEMA INDECIDIBILE ED ENUNCIARE LA TESI DI CHURCH
+ I problemi indecidibili sono problemi che i calcolatori non sono in grado di risolvere,
+ un esempio può essere il caso in cui un programma in grado di esaminare qualunque programma P,
+ e dire se P, eseguito con I come input, stampa ciao mondo.
+La tesi di churc invece è una tesi che assume che qualunque modo generale di computare permette
+di computare solo quella che la macchina di Turing è in grado di calcolare. Infatti un programma
+può risolvere un problema solo se la macchina di Turing stessa è in grado di calcolarlo.
+
+
+
+
+
+
+
+Gennaro è ghiotto di babà. Per il compleanno di Gennaro, sua madre si reca in pasticceria per acquistarne.
+Sfortunatamente la pasticceria non vende babà singoli, ma soltanto N torte di babà. Ogni torta t ha un costo
+C[t] ed un numero di B[t]. Infine, la madre ha deciso di spendere in pasticceria al massimo E euro.
+Scrivere un algoritmo, in pseudocodice, che, ricevendo come input le N torte a disposizione e E la somma
+massima a disposizione, restituisca il numero massimo dei babà che possono essere acquistati. Si assuma che
+sia possibile acquistare singole fette di torta.
+
+fractional_knapsack(C,B,X,n,E)
+ for t = 0 to n
+    X[t] = 0.0
+ value = 0.0
+ capacity = E
+ t = 0
+ while t <= n and capacity > 0.0
+       if C[t] <= capacity
+          X[t] = 1.0
+          capacity = capacity - C[t]
+       else
+          X[t] = capacity/C[t]
+          capacity = 0.0
+        value = value + X[t] * B[t]
+        t = t + 1
+  return value
+
+
+
+Dato un grafo G = (V,E) si scriva in pseudocodice un algoritmo che calcoli le componenti
+fortemente connesse del grafo. Si descriva lo pseudocodice di ogni funzione richiamata     //Da far correggere dal prof Ferone
+
+DFS(G)
+  for each u in G.V
+      u.color = WHITE
+      u.p = NIL
+  time = 0
+  max_time = 0
+  for each u in G.V
+      if u.color == WHITE
+         DFS_VISIT(u)
+
+DFS_VISIT(u)
+   u.color = GREY
+   u.d = time = time + 1
+   for each v in u.adj
+       if v.color == WHITE
+          v.p = u
+          DFS_VISIT(u)
+    u.color = BLACK
+    u.f = time = time + 1
+
+SSC(G)
+   DFS(G)
+   GT = trasponi_grafo(G)
+   S = ordina
+   for each u in GT.V
+       u.color = WHITE
+   while S != insieme vuoto
+         u = S.EXTRACT()
+         if u.color = WHITE
+            new ssc = []
+            DFS_VISIT(GT, u, nuova_SSC)
+            //add subgraph
+
+
+DATO UN GRAFO CONNESSUNO NON ORIENTATO PESATO G = (V,E) con pesi w(u,v) ed un vertice r appartenente V,
+si scriva un algoritmo in pseudocodice che restituisca il nodo di grado massimo del MST radicato in r.          //Da far correggere dal prof Ferone
+
+PRIM(G,r,w)
+   for each u in G.V
+       u.key = infinito
+       u.p = NIL
+       u.deg = 0
+    r.key = 0
+    Q = G.V
+    grado_max = 0
+    nodo_max = r
+    while Q != insieme vuoto
+         u = EXTRACT_MIN(Q)
+         for each v in u.adj
+            if v appartenente Q and w(u,v) < v.key
+               v.p = u
+               v.key = w(u,v)
+               u.deg = u.deg + 1
+               v.deg = v.deg + 1
+          if u.deg > grado_max
+             grado_max = u.deg
+             nodo_max = u
+  return nodo_max
+
+
+Data l'equazione ricorrente QUAD(n) = QUAD(n-1) + QUAD(n-2) + 6n - 5 scrivere un algoritmo
+usando la memoization che usandola calcoli il quadrato di n
+
+Quad(i)
+   Q = new table
+   for i = 0 to n
+       Q[i] = -infinito
+   return quadrato(i)
+
+quadrato(i)
+  if(i == 1)
+      return 1
+  if(Q[i] > - infinito)
+      return Q[i]
+  Q[i] = quadrato(i-1)+quadrato(i-2)+ 6n - 5
+  return Q[i]
+
+
+
+4. Dato un grafo non orientato e definito il tempo di visita come tempo di fine - tempo di inizio,
+calcolare il numero di nodi con tempo di visita = 1 ed il numero di nodi con tempo di visita massimo    //Da far correggere dal prof Ferone
+
+DFS(G)
+  time = 0
+  nodo_max = nil
+  nodoUno = 0
+  for each u in G.V
+      u.color = WHITE
+      u.p = NIL
+  for each u in G.V
+     if u.color == WHITE
+        DFS_VISIT(u)
+
+DFS_VISIT(u)
+   u.color = GREY
+   u.d = time = time + 1
+   for each v in u.adj
+       if v.color == WHITE
+          v.d = u
+          DFS_VISIT(u)
+  u.color = BLACK
+  u.f = time = time + 1
+  tempo_visita = u.f - u.d
+  if tempo_visita == 1
+     nodoUno++
+  if tempo_visita > nodo_max
+     nodo_max = tempo_visita
+
+
+5. Dato un albero binario verificare che sia un Red Black  //Da far correggere dal prof Ferone
+
+RedBlack_verifica(Albero)
+  if(radice == RED)        //PROPRIETA' 2
+      return false
+  if(checknode(radice,0) == false)
+      return false
+
+  return true
+
+controllaNodi(Nodo, numeroNeri)
+  if Nodo == NIL
+     return numeroNeri + 1
+
+  if Nodo.colore == RED
+     if Nodo.padre.colore == ROSSO     //PROPRIETA' 4
+        return false
+
+  if Nodo.colore == BLACK
+      numeroNeri = numeroNeri + 1
+
+  sinistroOk = controllaNodi(Nodo.sinistro, numeroNeri)
+  destroOk = controllaNodi(Nodo.destro, numeroNeri)
+
+  if sinistroOk == FALSE or destroOk == FLASE
+     return false
+
+  return true
+
+
+USA LA CATENA DI MONTAGGIO
+
+FASTEST(a,t,e,x,n)
+   f1[1] = e1 + a1,1 //ingresso catena 1
+   f2[2] = e2 + a2,1 //ingresso catena 2
+
+      for j = 2 to n
+
+          if  f1[j-1] <= f2[j-1] + t_2,j-1        //Inizio calcolo catena 1
+              f1[j] = f1[j-1] + a_1,j
+              l1[j] = 1
+          else
+              f1[j] = f2[j-1] + t_2,j-1 + a_1,j
+              l1[j] = 2
+
+          if  f2[j-1] <= f1[j-1] + t_1,j-1        //Inizio calcolo catena 2
+              f2[j] = f2[j-1] + a_2,j
+              l2[j] = 2
+          else
+              f2[j] = f1[j-1] + t_1,j-1 + a_2,j
+              l2[j] = 1
+
+       if f1[n] + x1 <= f2[n] + x2      //funzione ricorsiva
+            f* = f1[n] + x1
+            l* = 1
+       else
+            f* = f2[n] + x2
+            l* = 2
+
+
+RISOLVERE CON LA TECNICA DELLA MEMOIZATION IL SEGUENTE PROBLEMA CALCOLA-NUMERO DESCRITTO
+DALL'EQUAZIONE DI RICORSIONE:
+           G(n) = G(n-1) + G(n-2) + G(n-3)
+Con G(0) = G(1) = G(2) = 1
+
+
+  Gpro(n)
+     Gr = new vector
+     for i = 0 to n
+         Gr[i] = -inf
+      return G(n)
+
+  G(n)
+  if(n == 0 or n == 1 or n == 2)
+     return 1
+  if(Gr[n] > -inf)
+     return Gr[n]
+  Gr[n] <= G(n-1) - G(n-2) + G(n-3)
+  return Gr[n]
+
+
+
+LCS TABULATION
+
+   def lcs_tab(X,m,Y,n)
+   //crea matrice
+   dp = [[0] * (n-1) for _ in range(m+1)]
+
+   for i = in range(m+1)
+       for j in range(n+1)
+           if i == 0 or j == 0
+              dp[i][j] = 0
+           else if X[i - 1] == Y[j - 1]
+                dp[i][j] = dp[i-1][j-1] + 1
+           else
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+    return dp[m][n]
+
+MEMOIZATION
+    def lcs_memo(X, m, Y, n):
+      memo = {}
+
+      def helper(i, j):
+          if i == 0 or j == 0:
+              return 0
+
+          if (i, j) in memo:
+              return memo[(i, j)]
+
+          if X[i - 1] == Y[j - 1]:
+              memo[(i, j)] = 1 + helper(i - 1, j - 1)
+          else:
+              memo[(i, j)] = max(helper(i - 1, j), helper(i, j - 1))
+
+          return memo[(i, j)]
+
+      return helper(m, n)
+
+
+
+
+
+HASHTABLE
+
+hash_insert(T,k)
+  i = 0
+  repeat
+     j = h(k,i)
+     if T[j] = NIL
+        T[j] = k
+        return j
+     i = 1 + 1
+  until i = m
+  error "overflow"
+
+  hash_search(T,k)
+    i = 0
+    repeat
+       j = h(k,i)
+       if T[j] = k
+          return j
+       i = i + 1
+     until i = m or T[j] = NIL
+     return NIL
+
+HASHTABLE DELETE
+
+hash_insert(T, k)
+  i = 0
+  repeat
+     j = h(k, i)
+     if T[j] = NIL or T[j] = #
+        T[j] = k
+        return j
+     i = i + 1
+  until i = m
+  error "overflow"
+
+hash_search(T, k)
+  i = 0
+  repeat
+     j = h(k, i)
+     if T[j] = k
+        return j
+     if T[j] = NIL
+        return NIL
+     i = i + 1
+  until i = m
+  return NIL
+
+hash_delete(T, k)
+  j = hash_search(T, k)
+  if j ≠ NIL
+     T[j] = #
+
+
+Vostro padre è appassionato di vino. Vostro padre è anche affetto da diabete e non può bere vini
+con un grado alcolico elevato. Poichè domani festeggierà gli anni, avete deciso di regalargli alcune
+bottiglie, acquistandole su amazon. Supponendo che il vostro budget è di K euro e che per ogni bottiglia
+disponibile b sia noto sia il suo prezzo P(b) e sia il grado alchemico A(b), scrivere un algoritmo che
+determini le bottiglie da acquistare minimizzando il grado alcolemico complessivamente acquistato.
+Supponete che P(b) ed A(b) siano interi, per ogni bottiglia b.
+
+
+Knapsack_01(w,v,W,n)
+  for w = 0 to W
+     V[0,w] = 0
+  for i = 1 to n
+     V[n,0] = 0
+  for i = 1 to n
+     for w = 1 to W
+        if w[i] <= w
+           V[i,w] = max(V[i-1,w], V[i-1,w-w[i]] + v[i])
+        else
+           V[i,w] = V[i-1, w]
+  return V
+
+  Knapsack_01(P, A, K, n)
+    for b = 0 a K:
+       V[0, b] = 0
+    for i = 0 a n:
+       V[i, 0] = 0
+    for i = 1 a n:
+        for b = 1 a K:
+            if P[i] <= b:
+               V[i, b] = min(V[i-1, b], V[i-1, b - P[i]] + A[i-1])
+            else
+               V[i, b] = V[i-1, b]
+    return V[n, K]

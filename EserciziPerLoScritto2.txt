@@ -1,0 +1,362 @@
+Gennaro è ghiotto di babà. Per il compleanno di Gennaro, sua madre si reca in pasticceria per acquistarne.
+Sfortunatamente la pasticceria non vende babà singoli, ma soltanto N torte di babà. Ogni torta t ha un costo
+C[t] ed un numero di B[t]. Infine, la madre ha deciso di spendere in pasticceria al massimo E euro.
+Scrivere un algoritmo, in pseudocodice, che, ricevendo come input le N torte a disposizione e E la somma
+massima a disposizione, restituisca il numero massimo dei babà che possono essere acquistati. Si assuma che
+non sia possibile acquistare parti di torta.
+
+Knapsack_01(W,w,n,V)
+  C = new MATRIX
+  for w = 0 to W
+     C[0,w] = 0
+  for i = 1 to n
+     V[i,0] = 0
+  for w = 1 to W
+      for i = 1 to n
+          if w[i]<=w
+             C[i,w] = max(C[i-1,w], C[i-1,w-w[i]] + v[i])
+          else
+             C[i,w] = C[i-1,w]
+  return V[n,W]
+
+  //W capacità totale        //capacità dello zaino attuale    w[i] peso dell'i-esimo elemento        v[i] valore di un oggetto             V vettore dei valori
+   Knapsack_01(E,e,n,B)
+   P = new matrix
+   for e = 0 to E
+      P[0,e] = 0
+   for t = 1 to n
+      P[t,0] = 0
+   for e = 1 to E
+      for t = 1 to n
+          if C[t]<=e
+             P[t,e] = max(P[t-1,e], P[t-1,p-C[t]] + B[t])
+          else
+             P[t,e] = P[t-1,e]
+    return P[n,E]
+
+
+Gennaro è ghiotto di babà. Per il compleanno di Gennaro, sua madre si reca in pasticceria per acquistarne.
+Sfortunatamente la pasticceria non vende babà singoli, ma soltanto N torte di babà. Ogni torta t ha un costo
+C[t] ed un numero di B[t]. Infine, la madre ha deciso di spendere in pasticceria al massimo E euro.
+Scrivere un algoritmo, in pseudocodice, che, ricevendo come input le N torte a disposizione e E la somma
+massima a disposizione, restituisca il numero massimo dei babà che possono essere acquistati. Si assuma che
+sia possibile acquistare parti di torta.
+
+
+Fractional_knapsack(V,W,X,n,TOT)
+  for k = 1 to n
+     X[k] = 0.0
+  value = 0.0
+  capacity = TOT
+  k = 1
+  while k <= n and capacity > 0.0
+        if W[k] <= capacity
+           X[k] = 1.0
+           capacity = capacity/W[k]
+        else
+           X[k] = capacity - W[k]
+           capacity = 0.0
+        value = value + X[k]*V[k]
+  return value
+
+//V   VALORE DELL'OGGETTO
+//W   PESO DELL'OGGETTO
+//X   PARTE FRAZIONARIA DELL'OGGETTO
+//n   totale oggetti
+//TOT CAPACITA' DELLO ZAINO
+
+Fractional_knapsack(B,C,X,n,E)
+  for t = 1 to n
+      X[t] = 0.0
+  value = 0.0
+  capacity = E
+  while t <= n and capacity > 0.0
+        if C[t] <= capacity
+           X[t] = 1.0
+           capacity = capacity - C[t]
+        else
+           X[t] = capacity/C[t]
+           capacity = 0.0
+        value = value + X[t]*B[t]
+  return value
+
+
+
+FASTEST-AWAY
+
+Fastest-away(a,e,x,t,n)
+ f1[1] = e1 + a1,1
+ f2[2] = e2 + a2,1
+
+ for j = 2 to n
+    if f1[j-1] < f2[j-1] + t2,j-1
+       f1[j] = f1[j-1] + a1,j
+       l1[j] = 1
+    else
+       f2[j] = f2[j-1] + a2,j + t2,j-1
+       l1[j] = 2
+    if f2[j-1] < f1[j-1] + t1,j-1
+       f2[j] = f2[j-1] + a2,j
+       l1[j] = 2
+    else
+       f1[j] = f1[j-1] + a1,j + t2,j-1
+       l2[j] = 1
+  if f1[n] + x1 < f2[n] + x2
+     f* = f1[n] + x1
+     l* = 1
+  else
+     f* = f2[n] + x1
+     l* = 2
+
+
+ALBERO RB
+
+  RB_VERIFICA(ALBERO)
+    if(radice == RED) /*|| (radice.key<radice.l.key) | | (radice.key>radice.r.key) ) QUANDO E' UN ALBERO BINARIO STANDARD*/
+        return false
+    if(checknode(radice,0) == NIL) /* && ( (radice.key<radice.l.key) | | (radice.key>radice.r.key) ) ) QUANDO E' UN ALBERO BINARIO STANDARD*/
+        return FALSE
+
+    return true
+
+  CHECKNODE(Nodo, Black_number)
+     if Nodo == NILL
+        return Black_number + 1
+
+     if Nodo.colore == RED
+        if Nodo.padre.colore == RED  or nodo.padre_color != none
+           return false
+
+  sixsix = controllaNodi(Nodo.sinistro, Black_number_six)
+  dexdex = controllaNodi(Nodo.destro, Black_number_dex)
+
+  if sinistroOk == FALSE or dexdex == FALSE
+     return false
+
+  if sixsix != dexdex
+     return false
+
+  if Nodo.colore == BLACK
+     Black_number = Black_number + 1
+
+  if sixsix && dexdex and Black_number_six = Black_number_dex
+     Black_number = 1
+     return true
+  else
+     return false
+  return true
+
+
+SJF(S)
+Q = 0
+for each s in S
+    INSERT(Q,z)
+total_Time = 0
+while Q != empty
+    t = extract_min(Q)
+    total_Time = total_Time + t
+return total_Time
+
+
+ABR(T,z)
+x = T.root
+x.p = NIL
+while x != NIL
+     x.p = NIL
+     if z.key < x.key
+        x = x.left
+     else
+        x = x.right
+z.p = xp
+if z.p == NIL
+   T.root = z
+else if z.key < z.p.key
+        z.p.left = z
+    else
+        z.p.right = z
+
+
+VERIFICA_ABR
+        VERIFICA_ABR(T)
+            return INORDER_CHECK(T.root, NIL)
+
+        INORDER_CHECK(Nodo, prev_key)
+            if Nodo == NIL
+                return true  // Un albero vuoto è un ABR
+
+            // Controlla il sottoalbero sinistro
+            if not INORDER_CHECK(Nodo.left, prev_key)
+                return false
+
+            // Verifica che la chiave del nodo corrente sia maggiore della chiave precedente
+            if prev_key != NIL and Nodo.key <= prev_key
+                return false
+
+            // Aggiorna la chiave precedente
+            prev_key = Nodo.key
+
+            // Controlla il sottoalbero destro
+            return INORDER_CHECK(Nodo.right, prev_key)
+
+
+Data l'equazione ricorrente QUAD(n) = QUAD(n-1) + QUAD(n-2) + 6n - 5 scrivere un algoritmo
+usando la memoization che usandola calcoli il quadrato di n
+
+Quad(i)
+  Q = NEW TABLE
+  for n = 0 to N
+     Q(n) = -inf
+  return quadrato(n)
+
+quadrato(n)
+ if n == 1
+    return 1
+ if Q(n) > -inf
+    return Q[n]
+ Q[n] = QUAD(n-1) + QUAD(n-2) + QUAD(n-3)  + 6n - 5
+
+
+
+
+Dato un grafo G = (V,E) si scriva in pseudocodice un algoritmo che calcoli le componenti
+fortemente connesse del grafo. Si descriva lo pseudocodice di ogni funzione richiamata
+
+DFS(G)
+  for each u in G.V
+      u.color = WHITE
+      u.p = NIL
+  for each u in G.V
+     if u.color == WHITE
+         DFS_VISIT(u,S)
+
+DFS_VISIT(u,S)
+  u.color = GREY
+  u.d = time = time + 1
+  for each v in u.adj
+      if v.color == WHITE
+         v.p = u
+         DFS_VISIT(v,S)
+  u.color = BLACK
+  u.f = time = time + 1
+  S.push(u)
+
+SSC(G)
+  DFS(G)
+  GT = trasponi_grafo(G)
+  S = []
+  for each u in GT.V
+      u.color = WHITE
+  while S != EMPTY
+      u = S.pop()
+      if u.color == WHITE
+         new_ssc = []
+         DFS_VISIT(GT, u, new_ssc)
+         //return components
+
+LCS_TABULATION
+
+def LCS_TABULATION(X,m,Y,n)
+  MATRIX = [[0] * (n + 1) for _in range(m+1)]
+
+  for i in range(m+1)
+     for j in range(n+1)
+         if i==0 or j==0
+            MATRIX[i,j] = 0
+       else if X[i - 1] == Y[j - 1]
+            MATRIX[i,j] = MATRIX[i-1][j-1] + 1
+       else
+            MATRIX[i,j] = MAX(MATRIX[i-1,j], MATRIX[i,j-1])
+  return MATRIX[n,m]
+
+
+
+LCS_MEMOIZATION
+
+def lcs_memo(X,m,Y,n)
+    memo = {}
+
+    def helper(i,j)
+        if i = 0 or j == 0
+           return 0
+        if (i,j) in memo
+           return memo[(i,j)]
+        if X[i-1] == Y[j-1]
+           memo[(i-1)] = 1 + helper(i-1,j-1)
+        else
+           memo[(i-1)] = max(helper(i-1,j), helper(i,j-1))
+        return memo[(i,j)]
+  return helper(m,n)
+
+
+DATO UN GRAFO NON ORIENTATO G = (V,E) E NON PESATO CON UN NODO SORGENTE s APPARTENENTE V, ED UN
+NUMERO INTERO K APPARTENENTE N scrivere un algoritmo, in pseudocodice, che restituisca la lista
+dei nodi, il cui cammino minimo dal nodo sorgente s sia minore di k
+
+BFS(G,s,k)
+  for each u in {G.V-(s)}
+      u.color = WHITE
+      u.p = NIL
+      u.d = Infinito
+  s.color = GREY
+  s.p = NIL
+  s.d = 0
+  lista = ()
+  Q = G.V
+  ENQUEUE(Q,s)
+  while(Q != EMPTY)
+       DEQUEUE(Q,u)
+       for each v in u.adj
+           if v.color == WHITE
+              v.color = GREY
+              v.p = u
+              v.d = u.d + 1
+           if v.d < k
+              lista.addedd(v)
+           ENQUEUE(Q,v)
+  u.color = BLACK
+  return lista
+
+
+Dato un grafo G = (V,E), scrivere un algoritmo in pseudocodice che restituisca l'arco non sicuro
+di peso minore
+
+Kruskal(G,w)
+  A = EMPTY
+  for each u in G.V
+      MAKE-SET(u)
+  peso_min = - inf
+  arc_min = NIL
+  SORT(G.E)
+  for each (u,v) in G.E
+      if find-SET(u) != find-SET(v)
+         A = A U {u,v}
+         UNION(u,v)
+      else if w(u,v) < peso_min
+              peso_min = w(u,v)
+              arc_min = (u,v)
+  return A, arc_min
+
+Dato un grafo G = (V,E) orientato, aciclico e pesato con funzione peso w:E->R+ ed un nodo s APPARTENENTE V,
+scrivere un algoritmo in pseudocodice che per ogni v APPARTENENTE V\{s} restituisca il peso medio degli
+archi del cammino minimo s->v
+
+DJIKSTRA(G,w,u)
+   INIZIALIZE-SINGLE-SOURCE(G,s)
+   S = EMPTY
+   Q = G.V
+   sum = 0
+   peso_medio = []
+   cont = 0
+
+   while Q != EMPTY
+       u = extract_min(Q)
+       S = S U {u}
+       for each v in u.adj
+         if RELAX(u,v,w)
+            sum = sum + w(u,v)
+            cont++
+         if cont > 0
+            peso_medio[u] = sum/cont
+         else
+           peso_medio[u] = 0
+    return peso_medio

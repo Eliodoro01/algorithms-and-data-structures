@@ -1,0 +1,73 @@
+
+
+def LCS_MEMO(X,m,Y,n)
+    memo = {}
+
+    def helper(i,j)
+       if i== 0 and j == 0
+         return 0
+
+       if (i,j) in memo
+          return memo[(i,j)]
+
+       if X[i-1] == Y[i-1]
+          memo[(i,j)] = 1 + helper(i-1, j-1)
+       else
+          memo[(i,j)] = max(helper(i-1,j), helper(i,j-1))
+
+      return memo[(i,j)]
+return helper(m,n)
+
+
+Grafo che ritorna i pesi minimi non appartenenti all'mst e dire che se un MST è unico
+Kruskal(G,w)
+  A = EMPTY
+  for each u in G.V
+      MAKE-SET(u)
+  SORT(G.E)
+  peso_min = 0
+  min_node = 0
+  for each (u,v) in G.E
+      if FIND-SET(u) != FIND-SET(v)
+         A = A U {u}
+         UNION(u,v)
+      else if w(u,v) < peso_min
+              peso_min = w(u,v)
+      if arco duplicato con lo stesso peso è usato più volte
+          unico = false
+
+  return A, peso_min, unico
+
+
+Grafo con funzione perso W:E->R algoritmo ricorsivo che conta il numero di nodi nel più lungo ciclo di G
+
+DFS(G)
+ for each u in G.V
+     u.color = WHITE
+     u.p = u
+ for each u in G.V
+     if u.color == WHITE
+        DFS_VISIT(u)
+
+DFS_VISIT(u)
+   u.color = GREY
+   u.d = time = time + 1
+   for each v in u.adj
+       if v.color == WHITE
+          v.p = u
+          DFS_VISIT(v)
+   u.color = BLACK
+   u.f = time = time + 1
+
+
+def lcs_tabulation(X, m, Y, n):
+    dp = [[0] * (n + 1) for _ in range(m + 1)]
+       for i in range(m + 1):
+           for j in range(n + 1):
+               if i == 0 or j == 0:
+                   dp[i][j] = 0
+               elif X[i - 1] == Y[j - 1]:
+                   dp[i][j] = dp[i - 1][j - 1] + 1
+               else:
+                   dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])  
+       return dp[m][n]

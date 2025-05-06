@@ -1,0 +1,181 @@
+Definizione classe P e Np e dire perché p era contenuto in np
+La classe P ci dice che i problemi sono risolti in tempo polinomiale, mentre la classe NP sono quei problemi
+che possono essere verificati in tempo polinomiale ma devono essere risolti in tempo esponenziale.
+P può essere contenuto in NP perchè se possiamo trovare la soluzione di un problema in tempo polinomiale,
+possiamo sicuramente verificarne la correttezza in tempo polinomiale
+
+
+Esercizio SJF
+SJF(S)
+  Q = 0
+  for each s in S
+      INSERT(Q,s)
+  total_Time = 0
+  while Q != insieme vuoto
+        t = EXTRACT-MIN(Q)
+        total_Time = total-time+t
+  return total_Time
+
+
+Kruskal che restituisce elemento massimo
+
+Kruskal(G,r,w)
+  A = insieme vuoto
+  Max_node = Nil
+  for each u in G.V
+     MAKE-SET(u)
+  SORT(E,w)
+  for each {}(u,v)} in G.E
+      if FIND-SET(u) != FIND-SET(v)
+         A = A U {(u,v)}
+         UNION(u,v)
+         if w{(u,v)} > w(Max_node)
+            Max_node = {(u,v)}
+  return A, Max_node
+
+Definizione formale di DFA ed esempio di linguaggio di un dfa che accetta multipli di 5
+Un DFA è un automa che dopo aver letto una qualsiasi sequenza di input, si trova in un unico stato. Esso è
+composto da una quintupla dove:
+1. Q = insieme degli stati
+2. Epsilon = insieme dei simboli
+3. delta: QxEpsilon = Q funzione di transizione di stato che prende un intup e restituisce uno stato
+4. q0 = stato iniziale q0 incluso in Q
+5. F = stati finali o accettanti F incluso in Q
+
+
+Scrivere un algoritmo che ordina in maniera decrescente un array, la cui complessità nel caso migliore,
+medio e peggiore è al più nlogn
+
+Merge-sort(A, p, r)
+   if p < r
+      q = (p+r)/2
+      Merge-sort(A,p,q)
+      Merge-sort(A,q+1,p)
+      Merge(A,p,q,r)
+
+Merge(A,p,q,r)
+  n1 = q-p+1
+  ne = r-q
+  //crea due array L[1,...,n1+1] R[1,...,n2+1]
+  for i = 1 to n1
+      L[i] = A[p+i-1]
+  for j = 1 to n2
+      R[j] = A[q+j]
+  L[n1 + 1] = infinito
+  R[n2 + 2] = infinito
+  i = 1
+  j = 1
+  for k = 2 to r
+      if L[i]>=R[j]
+         A[k] = L[i]
+         i = i+1
+      else
+         A[k] = R[j]
+         j = j+1
+
+Un esercizio dove si usa lo zaino 0-1
+
+Knapsack(w,n,W,v)
+ for w = 0 to W
+    V[0,w] = 0
+ for i = 1 to n
+    V[i,0] = 0
+ for i = 1 to n
+    for w = 1 to W
+        if w[i] <= w
+           V[i,w] = max(V[i-1,w], V[i-1,w-w[i]], v[i])
+        else
+           V[i,w] = V[i-1,w]
+return V
+
+Un esercizio sui grafi, dove devi calcolare il peso medio degli archi per ogni cammino minimo
+da un vertice s a tutti gli altri vertici (Dijkstra)
+DIJKSTRA(G,w,s)
+  INITIALIZE_SINGLE_SOURCE(G,s)
+  S = insieme vuoto
+  Q = G.V
+  media = []
+  sum = []
+  for each u in G.V
+     media[u] = 0
+     sum[u] = 0
+
+  while Q != insieme vuoto
+        u = EXTRACT_MIN(Q)
+        S = S U {u}
+        for each v in u.adj
+            if  RELAX(u,v,w)
+              archi[v] = archi[u] + 1
+
+  for each u in G.V
+      if d[v] == infinito
+         media[v] = "non raggiungibile"
+      else
+         media[v] = d[v]/ archi [v]
+
+  return d,media
+
+
+Dato un grafo orientato G = (V,E) e pesato con funzione peso w: E -> R ed un nodo sorgente s € V, scrivere
+un algoritmo, in pseudocodice, che restituisca la profondità massima dei cammini minimi
+
+RELAX(u,v,w)
+   if v.d > u.d + w(u,v)
+      v.d = u.d + w(u,v)
+      v.p = u
+      v.prof = u.prof + 1
+
+INITIALIZE_SINGLE_SOURCE(G,s)
+  for each v in G.V
+      v.p = NIL
+      v.d = infinito
+      v.prof = 0
+  s.d = 0
+  s.p = NIL
+  s.prof = 0
+
+
+Bellmanford(G,s,w)
+   INITIALIZE_SINGLE_SOURCE(G,s)
+   prof_max = 0
+   for each u in G.V
+   for i = 1 to |V| - 1
+       for each (u,v) in G.E
+           RELAX(u,v,w)
+             if v.prof > prof_max
+                prof_max = v.prof
+   for each (u,v) in G.E
+       if v.d > u.d + w(u,v)
+          return false
+    return true, prof_max
+
+Dato un grafo non orientato G(V, E), implementare in pseudocodice un algoritmo ricorsivo
+che restituisca TRUE se in G è presente un ciclo Hamiltoniano e FALSE altrimenti.
+//Ogni nodo deve essere connesso agli altri
+//Il nodo finale deve essere connesso al nodo di partenza
+//Nel ciclo Hamiltoniano un ciclo deve essere connesso a tutti i nodi
+
+DFS(G)
+  for each u in G.V
+      u.color = WHITE
+      u.p = NIL
+  time = 0
+  stack = []
+  for each u in G.V
+      if u.color == WHITE
+         DFS_VISIT(u)
+  return false
+
+DFS_VISIT(u)
+   u.color = GREY
+   push.stack[u]
+   u.d = time = time + 1
+   for each v in u.adj
+       if v.color == WHITE
+          v.p = u
+          DFS_VISIT(u)
+   u.color = BLACK
+   u.f = time = time + 1
+   if stack[stack.lenght] in stack[1].adj
+      if stack.lenght == |V|
+         return true
