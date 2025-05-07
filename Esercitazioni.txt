@@ -117,18 +117,46 @@ Knapsack_01(W,w,n,V)
             V[i,w] = V[i-1, w]
   return V
 
-Knapsack_01(E,B,n,C)
-   for t = 0 to E
-       C[0,t] = 0
-   for i = 0 to n
-       C[i, 0] = 0
-   for i = 1 to n
-       for t = 1 to E
-           if t[i]<= t
-               C[i,t] = max(C[i-1,t], C[i-1,t-t[i]] + B[i])
-           else
-              C[i,t] = C[i-1,t]
-   return C
+Funzione Knapsack_01(E, B[1..n], C[1..n], n)
+    // Crea matrice DP[0..n][0..E]
+    Crea matrice DP[0..n][0..E]
+
+    // Inizializza la prima riga e la prima colonna a 0
+    per t da 0 a E:
+        DP[0][t] = 0
+    per i da 0 a n:
+        DP[i][0] = 0
+
+    // Riempimento tabella
+    per i da 1 a n:
+        per t da 1 a E:
+            se C[i] <= t allora
+                DP[i][t] = max(DP[i-1][t], DP[i-1][t - C[i]] + B[i])
+            altrimenti
+                DP[i][t] = DP[i-1][t]
+
+    ritorna DP[n][E] // Numero massimo di babà acquistabili
+
+
+
+Funzione MassimoBaba(N, C[1..N], B[1..N], E):
+    // Creazione tabella con N+1 righe e E+1 colonne inizializzata a 0
+    Crea matrice dp[0..N][0..E]
+    Per i da 0 a N:
+        Per e da 0 a E:
+            dp[i][e] = 0
+
+    // Riempimento tabella
+    Per i da 1 a N:
+        Per e da 0 a E:
+            Se C[i] <= e allora
+                // Possiamo scegliere se prendere o no la torta i
+                dp[i][e] = max(dp[i-1][e], dp[i-1][e - C[i]] + B[i])
+            Altrimenti
+                // Non possiamo permetterci la torta i
+                dp[i][e] = dp[i-1][e]
+
+    Ritorna dp[N][E]
 
 
 Dato un grafo connesso non orientato pesato G = (V,E) con pesi w(u,v) ed un vertice r appartenente V,
