@@ -139,6 +139,7 @@ Funzione Knapsack_01(E, B[1..n], C[1..n], n)
 
 
 
+
 Funzione MassimoBaba(N, C[1..N], B[1..N], E):
     // Creazione tabella con N+1 righe e E+1 colonne inizializzata a 0
     Crea matrice dp[0..N][0..E]
