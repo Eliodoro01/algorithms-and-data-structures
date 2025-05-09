@@ -1,6 +1,12 @@
 /**
  * scc = strongly connected components
  * t_graph = transposed graph (graph with reversed edges)
+ 
+ * In algoritmi DFS classici, i valori d (tempo di scoperta) e f (tempo di fine visita) sono importanti.
+ * Ma nel caso specifico dell’algoritmo di Kosaraju solo f (tempo di fine visita) è concettualmente 
+ * importante, ma non è necessario salvarlo esplicitamente, perché l’ordine di fine visita viene già gestito tramite lo stack.
+ * node.d (tempo di scoperta) → non serve.
+ * node.f (tempo di fine visita) → non serve esplicitamente, perché il push sullo stack già riflette l'ordine di fine visita.
  */
 
 dfs(graph) {                                           // Funzione principale DFS per trovare SCC
