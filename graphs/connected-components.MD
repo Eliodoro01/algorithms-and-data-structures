@@ -1,129 +1,127 @@
 # Algoritmo di Kosaraju per SCC - Pseudocodice Commentato
-
-```pseudocode
 /**
  * ================================================
- * ALGORITMO PRINCIPALE
+ * MAIN ALGORITHM
  * ================================================
- * Input: Grafo orientato G = (V, E)
- * Output: Lista di componenti fortemente connesse (SCC)
- * Complessità: O(V + E)
+ * Input: Directed graph G = (V, E)
+ * Output: List of strongly connected components (SCCs)
+ * Complexity: O(V + E)
  */
-ALGORITMO TrovaSCC(graph)
+ALGORITHM FindSCCs(graph)
     // --------------------------------------------
-    // Fase 1: Ordina i nodi per tempo di completamento
+    // Phase 1: Order nodes by finishing time
     // --------------------------------------------
-    stack = nuovo Stack()  // Struttura LIFO per ordinamento nodi
-    time = 0               // Timer globale per visite DFS
+    stack = new Stack()  // LIFO structure for node ordering
+    time = 0             // Global DFS timer
     
-    // Inizializzazione nodi
-    PER OGNI node IN graph.nodes
-        node.color = white  // Stato iniziale: non visitato
-        node.d = 0          // Tempo di scoperta (discovery time)
-        node.f = 0          // Tempo di completamento (finishing time)
-    FINE PER
+    // Initialize nodes
+    FOR EACH node IN graph.nodes
+        node.color = white  // Unvisited state
+        node.d = 0          // Discovery time
+        node.f = 0          // Finishing time
+    END FOR
     
-    // Prima visita DFS (riempimento stack)
-    PER OGNI node IN graph.nodes
-        SE node.color == white
-            DFS_PrimoPasso(node, stack)  // Visita ricorsiva
-        FINE SE
-    FINE PER
-    
-    // --------------------------------------------
-    // Fase 2: Costruzione grafo trasposto
-    // --------------------------------------------
-    t_graph = TrasponeGrafo(graph)  // Inverte tutti gli archi
+    // First DFS pass (fills stack)
+    FOR EACH node IN graph.nodes
+        IF node.color == white
+            DFS_FirstPass(node, stack)  // Recursive visit
+        END IF
+    END FOR
     
     // --------------------------------------------
-    // Fase 3: Ricerca SCC nel grafo trasposto
+    // Phase 2: Build transposed graph
     // --------------------------------------------
-    // Reset stati di visita
-    PER OGNI node IN t_graph.nodes
+    t_graph = TransposeGraph(graph)  // Reverse all edges
+    
+    // --------------------------------------------
+    // Phase 3: Find SCCs in transposed graph
+    // --------------------------------------------
+    // Reset visit states
+    FOR EACH node IN t_graph.nodes
         node.color = white
-    FINE PER
+    END FOR
     
-    scc_list = []  // Lista risultato
+    scc_list = []  // Result list
     
-    // Processa nodi in ordine inverso di completamento
-    MENTRE stack.nonVuoto()
+    // Process nodes in reverse finishing order
+    WHILE stack.notEmpty()
         node = stack.pop()
-        SE node.color == white
-            scc = []  // Nuova componente connessa
-            DFS_SecondoPasso(node, t_graph, scc)
-            scc_list.aggiungi(scc)  // Aggiunge la SCC trovata
-        FINE SE
-    FINE MENTRE
+        IF node.color == white
+            scc = []  // New connected component
+            DFS_SecondPass(node, t_graph, scc)
+            scc_list.add(scc)  // Add found SCC
+        END IF
+    END WHILE
     
-    RESTITUISCI scc_list
-FINE ALGORITMO
+    RETURN scc_list
+END ALGORITHM
 
 
 /**
  * ================================================
- * DFS PRIMO PASSO (Ordinamento nodi)
+ * FIRST DFS PASS (Node ordering)
  * ================================================
- * Riempie lo stack in ordine di finishing time decrescente
- * Complessità: O(V + E)
+ * Fills stack in decreasing finishing time order
+ * Complexity: O(V + E)
  */
-PROCEDURA DFS_PrimoPasso(node, stack)
+PROCEDURE DFS_FirstPass(node, stack)
     time = time + 1
-    node.d = time           // Registra tempo di scoperta
-    node.color = gray       // Marca come "in visita"
+    node.d = time           // Record discovery time
+    node.color = gray       // Mark as "visiting"
     
-    // Visita ricorsiva dei vicini
-    PER OGNI neighbor IN node.adjacent_nodes
-        SE neighbor.color == white
-            DFS_PrimoPasso(neighbor, stack)
-        FINE SE
-    FINE PER
+    // Recursive neighbor visit
+    FOR EACH neighbor IN node.adjacent_nodes
+        IF neighbor.color == white
+            DFS_FirstPass(neighbor, stack)
+        END IF
+    END FOR
     
-    // Completamento visita
-    node.color = black      // Marca come "completamente visitato"
+    // Completion
+    node.color = black      // Mark as "fully visited"
     time = time + 1
-    node.f = time           // Registra tempo di completamento
-    stack.push(node)        // Aggiunge allo stack (ordine LIFO)
-FINE PROCEDURA
+    node.f = time           // Record finishing time
+    stack.push(node)        // Add to stack (LIFO order)
+END PROCEDURE
 
 
 /**
  * ================================================
- * DFS SECONDO PASSO (Identificazione SCC)
+ * SECOND DFS PASS (SCC identification)
  * ================================================
- * Trova tutti i nodi raggiungibili nel grafo trasposto
- * Complessità: O(V + E)
+ * Finds all reachable nodes in transposed graph
+ * Complexity: O(V + E)
  */
-PROCEDURA DFS_SecondoPasso(node, t_graph, scc)
+PROCEDURE DFS_SecondPass(node, t_graph, scc)
     node.color = gray
-    scc.aggiungi(node)  // Aggiunge il nodo alla SCC corrente
+    scc.add(node)  // Add node to current SCC
     
-    // Visita i vicini nel grafo TRASPOSTO
-    PER OGNI neighbor IN t_graph.getAdjacent(node)
-        SE neighbor.color == white
-            DFS_SecondoPasso(neighbor, t_graph, scc)
-        FINE SE
-    FINE PER
+    // Visit neighbors in TRANSPOSED graph
+    FOR EACH neighbor IN t_graph.getAdjacent(node)
+        IF neighbor.color == white
+            DFS_SecondPass(neighbor, t_graph, scc)
+        END IF
+    END FOR
     
-    node.color = black  // Marca come visitato
-FINE PROCEDURA
+    node.color = black  // Mark as visited
+END PROCEDURE
 
 
 /**
  * ================================================
- * TRASPOSIZIONE GRAFO
+ * GRAPH TRANSPOSITION
  * ================================================
- * Crea un nuovo grafo con archi invertiti
- * Complessità: O(E)
+ * Creates new graph with reversed edges
+ * Complexity: O(E)
  */
-FUNZIONE TrasponeGrafo(graph)
-    t_graph = nuovo Grafo()
+FUNCTION TransposeGraph(graph)
+    t_graph = new Graph()
     
-    // Per ogni arco (u → v), crea (v → u)
-    PER OGNI node IN graph.nodes
-        PER OGNI neighbor IN node.adjacent_nodes
-            t_graph.aggiungiArco(neighbor, node)  // Inversione
-        FINE PER
-    FINE PER
+    // For each edge (u → v), create (v → u)
+    FOR EACH node IN graph.nodes
+        FOR EACH neighbor IN node.adjacent_nodes
+            t_graph.addEdge(neighbor, node)  // Edge reversal
+        END FOR
+    END FOR
     
-    RESTITUISCI t_graph
-FINE FUNZIONE
+    RETURN t_graph
+END FUNCTION
