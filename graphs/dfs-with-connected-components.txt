@@ -1,89 +1,92 @@
 /**
  * scc = strongly connected components
  * t_graph = transposed graph (graph with reversed edges)
- 
- * In algoritmi DFS classici, i valori d (tempo di scoperta) e f (tempo di fine visita) sono importanti.
- * Ma nel caso specifico dell’algoritmo di Kosaraju solo f (tempo di fine visita) è concettualmente 
- * importante, ma non è necessario salvarlo esplicitamente, perché l’ordine di fine visita viene già gestito tramite lo stack.
- * node.d (tempo di scoperta) → non serve.
- * node.f (tempo di fine visita) → non serve esplicitamente, perché il push sullo stack già riflette l'ordine di fine visita.
  */
 
-dfs(graph) {                                           // Funzione principale DFS per trovare SCC
-  stack = new stack();                                 // Stack per tenere traccia dell'ordine di visita
+main_alg(G){
 
-  for (node in graph.nodes) {                          // Inizializzazione dei nodi
-    node.predecessor = null;                           // Nessun predecessore all'inizio
-    node.color = white;                                // Tutti i nodi inizialmente bianchi (non visitati)
-  }
+    stack = new stack()
+    time = 0 
 
-  for (node in graph.nodes) {                          // Prima DFS per ordinare i nodi
-    if (node.color == white) {                         // Se il nodo non è stato visitato
-      dfs_visit_1(node, stack);                        // Chiamata alla funzione di visita
+    for node in G.nodes{
+        node.color = white
+        node.predecessor = null
+        node.d = 0
+        node.f = 0
     }
-  }
 
-  t_graph = create_t_graph(graph);                     // Creazione del grafo trasposto
-
-  for (node in t_graph.nodes) {                        // Reset dei colori nel grafo trasposto
-    node.color = white;
-  }
-
-  scc = [];                                            // Lista delle componenti fortemente connesse
-
-  while (!stack.is_empty()) {                          // Seconda DFS sul grafo trasposto
-    node = stack.pop();                                // Prendiamo un nodo dallo stack
-    t_node = t_graph.get_node_by_id(node.id);          // Prendiamo il nodo corrispondente nel grafo trasposto
-
-    if (t_node.color == white) {                       // Se il nodo non è stato ancora visitato
-      component = [];                                  // Nuova componente
-      dfs_visit_2(t_node, component);                  // Chiamata alla funzione di visita
-      scc.append(component);                           // Aggiungiamo la componente alle SCC
+    for node in G.nodes{
+        if node.color == white{
+            DFS_firstPass(node, stack)
+        }
     }
-  }
 
-  return scc;                                          // Ritorniamo le SCC trovate
+    t_graph = create_t_graph(G)
+
+    for node in t_graph.nodes{
+        node.color = white
+    }
+
+    ssc_list = []
+
+    while !stack.is_empty(){
+        node = stack.pop()
+
+        if node.color == white{
+            ssc = []
+            DFS_secondPass(node, t_graph, scc)
+            scc_list.add(scc)
+        }
+    }
+
+    return scc_list
 }
 
-dfs_visit_1(node, stack) {                             // Funzione di visita per la prima DFS
-  node.color = gray;                                   // Nodo in fase di visita
+DFS_firstPass(node, stack){
+    time = time + 1
+    node.d = time 
+    node.color = gray
 
-  for (adj_node in node.adj) {                         // Per ogni nodo adiacente
-    if (adj_node.color == white) {                     // Se non è stato visitato
-      adj_node.predecessor = node;                     // Assegniamo il predecessore
-      dfs_visit_1(adj_node, stack);                    // Visitiamo ricorsivamente il nodo adiacente
+    for adj_node in node.adj{
+        if adj_node.color == white{
+            DFS_firstPass(adj_node, stack)
+        }
     }
-  }
 
-  node.color = black;                                  // Nodo completamente visitato
-  stack.push(node);                                    // Aggiungiamo il nodo allo stack
+    node.color = black
+    time = time + 1
+    node.f = time
+
+    stack.push(node)
 }
 
-dfs_visit_2(node, component) {                         // Funzione di visita per la seconda DFS
-  node.color = gray;                                   // Nodo in fase di visita
-  component.append(node);                              // Aggiungiamo il nodo alla componente corrente
+DFS_secondPass(node, t_graph, scc){
 
-  for (t_adj_node in node.adj) {                       // Per ogni nodo adiacente nel grafo trasposto
-    if (t_adj_node.color == white) {                   // Se non è stato visitato
-      dfs_visit_2(t_adj_node, component);              // Visitiamo ricorsivamente
+    node.color = gray
+    scc.add(node)
+
+    for adj_node in t_graph.getAdiacent(node){
+        if adj_node.color == white{
+            DFS_secondPass(adj_node, t_graph, scc)
+        }
     }
-  }
 
-  node.color = black;                                  // Nodo completamente visitato
+    node.color = black
 }
 
-create_t_graph(graph) {                                // Funzione per creare il grafo trasposto
-  t_graph = new graph();
 
-  for (node in graph.nodes) {
-    t_graph.add_node(node.id);                         // Copia dei nodi
-  }
+create_t_graph(G){
 
-  for (node in graph.nodes) {
-    for (adj_node in node.adj) {
-      t_graph.get_node_by_id(adj_node.id).add_edge(t_graph.get_node_by_id(node.id)); // Inverti l’arco
+    t_graph = new graph()
+
+    for node in G.nodes{
+        for adj_node in node.adj{
+            t_graph.add_node_if_not_exists(adj_node)
+            t_graph.add_node_if_not_exists(node)
+            t_graph.add_edge(adj_node, node)  // arco inverso!
+
+        }
     }
-  }
 
-  return t_graph;
+    return t_graph
 }
