@@ -4,11 +4,10 @@
  */
 
 dfs(graph) {                                           // Funzione principale DFS per trovare SCC
-  stack = new stack();                                  // Stack per tenere traccia dell'ordine di visita
+  stack = new stack();                                 // Stack per tenere traccia dell'ordine di visita
 
   for (node in graph.nodes) {                          // Inizializzazione dei nodi
     node.predecessor = null;                           // Nessun predecessore all'inizio
-    node.d = 0;                                        // Inizializzazione del tempo di scoperta
     node.color = white;                                // Tutti i nodi inizialmente bianchi (non visitati)
   }
 
@@ -18,47 +17,67 @@ dfs(graph) {                                           // Funzione principale DF
     }
   }
 
-  t_graph = create_t_graph();                          // Creazione del grafo trasposto
+  t_graph = create_t_graph(graph);                     // Creazione del grafo trasposto
 
-  while (!stack.is_empty()) {                         // Seconda DFS sul grafo trasposto
-    node = stack.pop();                               // Prendiamo un nodo dallo stack
+  for (node in t_graph.nodes) {                        // Reset dei colori nel grafo trasposto
+    node.color = white;
+  }
 
-    if (node.color == white) {                        // Se il nodo non è stato ancora visitato
-      dfs_visit_2(node, t_graph);                     // Chiamata alla funzione di visita sul grafo trasposto
+  scc = [];                                            // Lista delle componenti fortemente connesse
+
+  while (!stack.is_empty()) {                          // Seconda DFS sul grafo trasposto
+    node = stack.pop();                                // Prendiamo un nodo dallo stack
+    t_node = t_graph.get_node_by_id(node.id);          // Prendiamo il nodo corrispondente nel grafo trasposto
+
+    if (t_node.color == white) {                       // Se il nodo non è stato ancora visitato
+      component = [];                                  // Nuova componente
+      dfs_visit_2(t_node, component);                  // Chiamata alla funzione di visita
+      scc.append(component);                           // Aggiungiamo la componente alle SCC
     }
   }
 
-  scc = predecessor - subgraph;                       // Creazione delle SCC dai predecessori
+  return scc;                                          // Ritorniamo le SCC trovate
 }
 
-dfs_visit_1(node, stack) {                            // Funzione di visita per la prima DFS
-  node.color = gray;                                  // Nodo in fase di visita
-  node.d = time + 1;                                  // Aggiornamento del tempo di scoperta
+dfs_visit_1(node, stack) {                             // Funzione di visita per la prima DFS
+  node.color = gray;                                   // Nodo in fase di visita
 
-  for (adj_node in node.adj) {                        // Per ogni nodo adiacente
-    if (adj_node.color == white) {                    // Se non è stato visitato
-      adj_node.predecessor = node;                    // Assegniamo il predecessore
-      dfs_visit_1(node, stack);                       // Visitiamo ricorsivamente
+  for (adj_node in node.adj) {                         // Per ogni nodo adiacente
+    if (adj_node.color == white) {                     // Se non è stato visitato
+      adj_node.predecessor = node;                     // Assegniamo il predecessore
+      dfs_visit_1(adj_node, stack);                    // Visitiamo ricorsivamente il nodo adiacente
     }
   }
 
-  node.color = black;                                 // Nodo completamente visitato
-  node.f = time + 1;                                  // Aggiornamento del tempo di fine visita
-
-  stack.push(node);                                   // Aggiungiamo il nodo allo stack
+  node.color = black;                                  // Nodo completamente visitato
+  stack.push(node);                                    // Aggiungiamo il nodo allo stack
 }
 
-dfs_visit_2(node, t_graph) {                         // Funzione di visita per la seconda DFS
-  node.color = gray;                                  // Nodo in fase di visita
-  node.d = time + 1;                                  // Aggiornamento del tempo di scoperta
+dfs_visit_2(node, component) {                         // Funzione di visita per la seconda DFS
+  node.color = gray;                                   // Nodo in fase di visita
+  component.append(node);                              // Aggiungiamo il nodo alla componente corrente
 
-  for (t_adj_node in node.t_adj_node) {              // Per ogni nodo adiacente nel grafo trasposto
-    if (color[t_adj_node] == white) {                // Se non è stato visitato
-      predecessor.t_adj_node = node;                 // Assegniamo il predecessore
-      dfs_visit_2(t_adj_node, t_graph);              // Visitiamo ricorsivamente
+  for (t_adj_node in node.adj) {                       // Per ogni nodo adiacente nel grafo trasposto
+    if (t_adj_node.color == white) {                   // Se non è stato visitato
+      dfs_visit_2(t_adj_node, component);              // Visitiamo ricorsivamente
     }
   }
 
-  node.f = time + 1;                                  // Aggiornamento del tempo di fine visita
-  node.color = black;                                 // Nodo completamente visitato
+  node.color = black;                                  // Nodo completamente visitato
+}
+
+create_t_graph(graph) {                                // Funzione per creare il grafo trasposto
+  t_graph = new graph();
+
+  for (node in graph.nodes) {
+    t_graph.add_node(node.id);                         // Copia dei nodi
+  }
+
+  for (node in graph.nodes) {
+    for (adj_node in node.adj) {
+      t_graph.get_node_by_id(adj_node.id).add_edge(t_graph.get_node_by_id(node.id)); // Inverti l’arco
+    }
+  }
+
+  return t_graph;
 }
