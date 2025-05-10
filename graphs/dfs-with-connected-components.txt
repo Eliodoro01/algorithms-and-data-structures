@@ -3,90 +3,94 @@
  * t_graph = transposed graph (graph with reversed edges)
  */
 
-main_alg(G){
+main_alg(G){ // Funzione principale per trovare le componenti fortemente connesse (SCC)
 
-    stack = new stack()
-    time = 0 
+    stack = new stack()            // Stack per memorizzare i nodi in ordine di fine visita
+    time = 0                       // Contatore globale per i tempi di visita nel DFS
 
-    for node in G.nodes{
-        node.color = white
-        node.predecessor = null
-        node.d = 0
-        node.f = 0
+    for node in G.nodes{          // Inizializza i nodi del grafo
+        node.color = white        // Colore bianco = non visitato
+        node.predecessor = null   // Nessun predecessore inizialmente
+        node.d = 0                // Tempo di scoperta iniziale
+        node.f = 0                // Tempo di fine iniziale
     }
 
-    for node in G.nodes{
-        if node.color == white{
-            DFS_firstPass(node, stack)
+    for node in G.nodes{          // Primo passaggio DFS (sul grafo originale)
+        if node.color == white{   // Se il nodo non è ancora stato visitato
+            DFS_firstPass(node, stack) // Avvia DFS e salva nel stack l’ordine di fine
         }
     }
 
-    t_graph = create_t_graph(G)
+    t_graph = create_t_graph(G)   // Crea il grafo trasposto (con archi invertiti)
 
-    for node in t_graph.nodes{
-        node.color = white
+    for node in t_graph.nodes{    // Reinizializza tutti i nodi nel grafo trasposto
+        node.color = white        // Colore bianco = non visitato
     }
 
-    ssc_list = []
+    ssc_list = []                 // Lista delle componenti fortemente connesse (output finale)
 
-    while !stack.is_empty(){
-        node = stack.pop()
+    while !stack.is_empty(){      // Cicla finché ci sono nodi nello stack
+        node = stack.pop()        // Prende il nodo con tempo di fine massimo
 
-        if node.color == white{
-            ssc = []
-            DFS_secondPass(node, t_graph, scc)
-            scc_list.add(scc)
+        if node.color == white{   // Se non è ancora stato visitato nel secondo passaggio
+            ssc = []              // Nuova componente fortemente connessa
+            DFS_secondPass(node, t_graph, ssc) // DFS sul grafo trasposto
+            scc_list.add(scc)     // Aggiunge la SCC alla lista finale
         }
     }
 
-    return scc_list
-}
-
-DFS_firstPass(node, stack){
-    time = time + 1
-    node.d = time 
-    node.color = gray
-
-    for adj_node in node.adj{
-        if adj_node.color == white{
-            DFS_firstPass(adj_node, stack)
-        }
-    }
-
-    node.color = black
-    time = time + 1
-    node.f = time
-
-    stack.push(node)
-}
-
-DFS_secondPass(node, t_graph, scc){
-
-    node.color = gray
-    scc.add(node)
-
-    for adj_node in t_graph.getAdiacent(node){
-        if adj_node.color == white{
-            DFS_secondPass(adj_node, t_graph, scc)
-        }
-    }
-
-    node.color = black
+    return scc_list               // Restituisce tutte le SCC trovate
 }
 
 
-create_t_graph(G){
+DFS_firstPass(node, stack){       // DFS per il primo passaggio (sul grafo originale)
 
-    t_graph = new graph()
+    time = time + 1               // Incrementa il tempo globale
+    node.d = time                 // Salva il tempo di scoperta
+    node.color = gray             // Nodo in esplorazione (grigio)
 
-    for node in G.nodes{
-        for adj_node in node.adj{
-            t_graph.add_node_if_not_exists(adj_node)
-            t_graph.add_node_if_not_exists(node)
-            t_graph.add_edge(adj_node, node)  // arco inverso!
-
+    for adj_node in node.adj{     // Per ogni nodo adiacente
+        if adj_node.color == white{ // Se non è stato ancora visitato
+            DFS_firstPass(adj_node, stack) // DFS ricorsiva
         }
     }
 
-    return t_graph
+    node.color = black            // Fine esplorazione del nodo
+    time = time + 1               // Incrementa il tempo globale
+    node.f = time                 // Salva il tempo di fine visita
+
+    stack.push(node)              // Inserisce il nodo nello stack in base al tempo di fine
+}
+
+
+
+DFS_secondPass(node, t_graph, scc){ // DFS sul grafo trasposto
+
+    node.color = gray             // Nodo in esplorazione
+    scc.add(node)                 // Aggiunge il nodo alla SCC corrente
+
+    for adj_node in t_graph.getAdiacent(node){ // Per ogni nodo adiacente nel grafo trasposto
+        if adj_node.color == white{ // Se non ancora visitato
+            DFS_secondPass(adj_node, t_graph, scc) // DFS ricorsiva
+        }
+    }
+
+    node.color = black            // Fine esplorazione del nodo
+}
+
+
+
+create_t_graph(G){               // Funzione per creare il grafo trasposto
+
+    t_graph = new graph()         // Crea nuovo grafo vuoto
+
+    for node in G.nodes{          // Per ogni nodo nel grafo originale
+        for adj_node in node.adj{ // Per ogni adiacente del nodo
+            t_graph.add(adj_node)           // Aggiunge l'adiacente al grafo trasposto (se non già presente)
+            t_graph.add(node)               // Aggiunge anche il nodo corrente (se non già presente)
+            t_graph.add_edge(adj_node, node) // Aggiunge arco inverso: da adj_node a node
+        }
+    }
+
+    return t_graph                // Restituisce il grafo trasposto
 }
