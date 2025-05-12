@@ -2,10 +2,12 @@
  * Dato un grafo non orientato, pesato, con radice R. 
  * Calcolare l'altezza del MST radicato in R
  */
+
 prim(graph, root, weights):
     for node in graph.nodes:
         node.predecessor = NIL
         node.key = inf
+        node.visited = false
 
     root.key = 0
     root.predecessor = NIL
@@ -14,38 +16,33 @@ prim(graph, root, weights):
 
     while queue != ∅:
         node = queue.extract_min()
+        node.visited = true
 
         for adj_node in node.adj:
-            if adj_node ∈ queue and weights(node, adj_node) < adj_node.key:
+            if not adj_node.visited and weights(node, adj_node) < adj_node.key:
                 adj_node.predecessor = node
                 adj_node.key = weights(node, adj_node)    // decrease key
 
-
-bfs_visit(graph, root):
-    prim(graph, root)
-
+compute_mst_height(root):
+    if root == NIL:
+        return 0
+        
     max_height = 0
-
-    root.d = 0
-    root.predecessor = null
-    root.color = gray
-
-    queue = ∅
-    queue.append(root)
-
-    while queue != ∅:
-        node = queue.pop()
-
-        for adj_node in node.adj:
-            if adj_node.color == white and node == adj_node.predecessor:
-                adj_node.color = gray
-                adj_node.d = node.d + 1
-
-                if adj_node.d > max_height:
-                    max_height = adj_node.d
-
-                queue.append(adj_node)
-
-        node.color = black
-
+    
+    for child in get_children(root):
+        current_height = compute_mst_height(child)
+        if current_height + 1 > max_height:
+            max_height = current_height + 1
+    
     return max_height
+
+get_children(node):
+    children = []
+    for adj_node in node.adj:
+        if adj_node.predecessor == node:
+            children.append(adj_node)
+    return children
+
+
+//La funzione get_children trova tutti i figli di 
+//un nodo nell'albero (nodi il cui predecessore è il nodo corrente)
