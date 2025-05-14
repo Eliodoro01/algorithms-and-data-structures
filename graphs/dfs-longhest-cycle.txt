@@ -1,50 +1,31 @@
 /*Grafo con funzione perso W:E->R con un algoritmo ricorsivo che conta il numero di nodi nel più lungo ciclo di G*/
 
-time: int = 0
-max_cycle_lenght: int = 0
+max_cycle_length = 0
 
-dfs(graph){
-
-    time = 0
-    max_cycle_lenght = 0
-
-    for each node in graph.nodes{
+find_longest_cycle(graph):
+    for each node in graph.nodes:
         node.color = white
-        node.d = 0
-        node.f =0
         node.predecessor = NULL
-        node.depth = 0
-    }
+    
+    for node in graph.nodes:
+        if node.color == white:
+            current_path = []  # Stack per tenere traccia del percorso corrente
+            dfs_visit(node, current_path)
 
-    for node in graph.nodes{
-        if node.color == white{
-            max_cycle_length = max(max_cycle_length, dfs_visit(node))
-        }
-    }
-}
+    return max_cycle_length
 
-
-dfs_visit(node){
-
-    time = time + 1
+dfs_visit(node, current_path):
     node.color = gray
-    node.d = time
+    current_path.push(node)  # Aggiungi il nodo al percorso corrente
 
-    for adj_node in node.adj{
-        if adj_node.color == gray{
-            cycle_length = node.depth - adj_node.depth + 1
-            max_cycle_length = max(max_cycle_length, cycle_length)
-        }
-        else if adj_node.color == white{
-            adj_node.depth = node.depth + 1
+    for adj_node in node.adj:
+        if adj_node.color == white:
             adj_node.predecessor = node
-            max_cycle_lenght = max(max_cycle_lenght, dfs_visit(adj_node))
-        }
-    }
+            dfs_visit(adj_node, current_path)
+        else if adj_node.color == gray and adj_node != node.predecessor:
+            # Trovato un ciclo (back edge)
+            cycle_length = current_path.length() - current_path.find_index(adj_node) + 1
+            max_cycle_length = max(max_cycle_length, cycle_length)
 
-    time = time + 1
-    node.f = time
-    node.color = black 
-
-    return max_cycle_lenght
-}
+    current_path.pop()  # Rimuovi il nodo dal percorso corrente (backtracking)
+    node.color = black

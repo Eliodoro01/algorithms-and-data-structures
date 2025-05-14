@@ -34,7 +34,7 @@ dfs_visit(node){
 			dfs_visit(adj_node)
 		}
 		
-		if adj_node.color == black && node.d < adj_node.d{
+		if adj_node.color == black && node.d > adj_node.d{
 			list.push((node, adj_node))
 		}	
 	}
