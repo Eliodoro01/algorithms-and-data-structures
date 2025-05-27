@@ -1,46 +1,90 @@
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
 
-class MaxHeap{
+class Node{
 
-  private:
-    vector<int> heap;
+    public:
+    int key;
 
-    void maxHeapify( int i){
-        int l = (i * 2) + 1;
-        int r = (i * 2) + 2; 
-        int max = i;
+    Node* right;
+    Node* left;
+    Node* parent;
 
-        if(l < heap.size() && heap[l] < heap[max]){
-            max = l;
-        }
-
-        if(r < heap.size() && heap[r] < heap[max]){
-            max = r;
-        }
-
-        if(max != i){
-            swap(heap[i], heap[max]);
-            maxHeapify(max);
-        }
-
+    Node(int key){
+        this->key = key;
+        left = right = parent = nullptr;
     }
-
-  public:
-
-    MaxHeap(const vector<int>& data){
-        heap = data;
-        buildMaxHeap();
-    }
-
-    void buildMaxHeap(){
-        for(int i = heap.size() /2 -1; i >= 0; i--){
-            maxHeapify(i);
-        }
-    }
-
 };
 
+
+class BinarySearchTree{
+
+    private:
+
+    Node* root;
+
+    void transplant(Node* u, Node* v){
+
+        if(u->parent == nullptr){
+            root = v;
+        }
+        else if(u == u->parent->left){
+            u->parent->left = v;
+        }
+        else{
+            u->parent->right = v;
+        }
+
+        if(v != nullptr){
+            v->parent = u->parent;
+        }
+    }
+
+    Node* treeMinimum(Node* node){
+
+        while(node->left != nullptr){
+            node = node->left;
+        }
+        return node;
+    }
+
+    public:
+
+    BinarySearchTree(){
+        root = nullptr;
+    }
+
+    void insert(int key){
+
+        Node* z = new Node(key);
+        Node* y = nullptr;
+        Node* x = root;
+
+        while(x != nullptr){
+            y = x;
+            if(z->key < x->key){
+                x = x->left;
+            }
+            else{
+                x = x->right;
+            }
+        }
+
+        z->parent = y;
+
+        if(y == nullptr){
+            root = z;
+        }
+        else if(z->key < y->key){
+            y->left = z;
+        }
+        else{
+            y->right = z;
+        }
+    }
+
+    
+
+};

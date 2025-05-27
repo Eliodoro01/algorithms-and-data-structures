@@ -40,6 +40,38 @@ private:
         return node;
     }
 
+    Node* treeMaximum(Node* node) {
+    while (node->right != nullptr) {
+        node = node->right;
+    }
+    return node;
+    }
+
+    Node* successor(Node* x) {
+        if (x->right != nullptr)
+            return treeMinimum(x->right);
+
+        Node* y = x->parent;
+        while (y != nullptr && x == y->right) {
+            x = y;
+            y = y->parent;
+        }
+        return y;
+    }
+
+    Node* predecessor(Node* x) {
+        if (x->left != nullptr)
+            return treeMaximum(x->left);
+
+        Node* y = x->parent;
+        while (y != nullptr && x == y->left) {
+            x = y;
+            y = y->parent;
+        }
+        return y;
+    }
+
+
 public:
     BinarySearchTree() {
         root = nullptr;
