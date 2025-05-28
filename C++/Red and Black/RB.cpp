@@ -1,5 +1,7 @@
 #include <iostream>
 
+using namespace std;
+
 enum Color { RED, BLACK };
 
 struct Node {
@@ -83,4 +85,48 @@ public:
         return NIL;
     }
 };
+
+
+int main() {
+    RedBlackTree tree;
+
+    // Creiamo manualmente 3 nodi
+    Node* x = new Node(10);
+    Node* y = new Node(20);
+    Node* nil = tree.getNIL();  // Puntatore al nodo NIL
+
+    // Impostiamo i collegamenti per simulare un piccolo albero:
+    //    x
+    //     \
+    //      y
+    x->right = y;
+    y->parent = x;
+
+    x->left = nil;
+    y->left = nil;
+    y->right = nil;
+    x->parent = nil;
+
+    // Impostiamo la radice
+    // (notare che tree.root è privato, quindi qui bisognerebbe estendere la classe per settarlo direttamente)
+    // Per il test, simuliamo con una funzione interna: usiamo x come radice
+    tree.leftRotate(x);  // Eseguiamo la rotazione sinistra su x
+
+    cout << "Dopo leftRotate:\n";
+    cout << "Nuova radice: " << y->key << endl;
+    cout << "Sinistro di root: " << y->left->key << endl;
+
+    // Ora facciamo una rightRotate su y per tornare alla situazione iniziale
+    tree.rightRotate(y);
+
+    cout << "\nDopo rightRotate:\n";
+    cout << "Nuova radice: " << x->key << endl;
+    cout << "Destro di root: " << x->right->key << endl;
+
+    // Pulizia
+    delete x;
+    delete y;
+
+    return 0;
+}
 
