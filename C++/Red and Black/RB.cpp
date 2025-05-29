@@ -1,132 +1,281 @@
 #include <iostream>
-
 using namespace std;
 
-enum Color { RED, BLACK };
-
-struct Node {
-    int key;
-    Color color;
-    Node* left;
-    Node* right;
-    Node* parent;
-
-    Node(int key)
-        : key(key), color(RED), left(nullptr), right(nullptr), parent(nullptr) {}
+enum Color
+{
+    RED,
+    BLACK
 };
 
-class RedBlackTree {
+// Classe Node (nodo dell'albero)
+class Node
+{
 private:
-    Node* root;
-    Node* NIL;
+    int key;
+    Color color;
+    Node *left;
+    Node *right;
+    Node *parent;
 
 public:
-    RedBlackTree() {
+    // Costruttore
+    Node(int k)
+        : key(k), color(RED), left(nullptr), right(nullptr), parent(nullptr) {}
+
+    // Getter e Setter
+    int getKey() const { return key; }
+    void setKey(int k) { key = k; }
+
+    Color getColor() const { return color; }
+    void setColor(Color c) { color = c; }
+
+    Node *getLeft() const { return left; }
+    void setLeft(Node *l) { left = l; }
+
+    Node *getRight() const { return right; }
+    void setRight(Node *r) { right = r; }
+
+    Node *getParent() const { return parent; }
+    void setParent(Node *p) { parent = p; }
+
+    // La classe RedBlackTree può accedere direttamente ai membri privati
+    friend class RedBlackTree;
+};
+
+// Classe albero Red-Black
+class RedBlackTree
+{
+private:
+    Node *root;
+    Node *NIL;
+
+public:
+    // Costruttore dell'albero
+    RedBlackTree()
+    {
         NIL = new Node(0);
         NIL->color = BLACK;
+        NIL->left = NIL->right = NIL->parent = nullptr;
         root = NIL;
     }
 
-   void leftRotate(Node* x) {
-        Node* y = x->right;           // y diventa il figlio destro di x (cioè il nodo che salirà al posto di x)
-
-        x->right = y->left;           // il sottoalbero sinistro di y diventa il sottoalbero destro di x
-                                    // (cioè il figlio sinistro di y viene "adottato" da x come suo figlio destro)
-
-        if (y->left != NIL) {
-            y->left->parent = x;      // se y ha un figlio sinistro (non è NIL), ne aggiorniamo il padre a x
-        }
-
-        y->parent = x->parent;        // ora y "sale" al posto di x, quindi il padre di y diventa il padre di x
-
-        if (x->parent == NIL) {
-            root = y;                 // se x era la radice, allora y diventa la nuova radice
-        } else if (x == x->parent->left) {
-            x->parent->left = y;      // se x era figlio sinistro del padre, aggiorniamo quel puntatore a y
-        } else {
-            x->parent->right = y;     // altrimenti, x era figlio destro, e aggiorniamo quel puntatore a y
-        }
-
-        y->left = x;                  // x diventa il figlio sinistro di y
-        x->parent = y;                // y diventa il nuovo padre di x
+    // Distruttore (per liberare il nodo NIL)
+    ~RedBlackTree()
+    {
+        delete NIL;
     }
 
-    void rightRotate(Node* y) {
-        Node* x = y->left;            // x è il figlio sinistro di y (cioè il nodo che salirà al posto di y)
+    // Rotazione a sinistra intorno al nodo x
+    void leftRotate(Node *x)
+    {
+        Node *y = x->right;
 
-        y->left = x->right;           // il sottoalbero destro di x diventa il sottoalbero sinistro di y
-                                    // (cioè il figlio destro di x viene "adottato" da y come suo figlio sinistro)
-
-        if (x->right != NIL) {
-            x->right->parent = y;     // se x ha un figlio destro (non NIL), ne aggiorniamo il padre a y
+        x->right = y->left;
+        if (y->left != NIL)
+        {
+            y->left->parent = x;
         }
 
-        x->parent = y->parent;        // ora x "sale" al posto di y, quindi il padre di x diventa il padre di y
+        y->parent = x->parent;
 
-        if (y->parent == NIL) {
-            root = x;                 // se y era la radice, allora x diventa la nuova radice
-        } else if (y == y->parent->right) {
-            y->parent->right = x;     // se y era figlio destro del padre, aggiorniamo quel puntatore a x
-        } else {
-            y->parent->left = x;      // altrimenti, y era figlio sinistro, e aggiorniamo quel puntatore a x
+        if (x->parent == NIL)
+        {
+            root = y;
+        }
+        else if (x == x->parent->left)
+        {
+            x->parent->left = y;
+        }
+        else
+        {
+            x->parent->right = y;
         }
 
-        x->right = y;                 // y diventa il figlio destro di x
-        y->parent = x;                // x diventa il nuovo padre di y
+        y->left = x;
+        x->parent = y;
     }
 
+    // Rotazione a destra intorno al nodo y
+    void rightRotate(Node *y)
+    {
+        Node *x = y->left;
 
-    // Metodo per ottenere la radice (per scopi di test)
-    Node* getRoot() {
+        y->left = x->right;
+        if (x->right != NIL)
+        {
+            x->right->parent = y;
+        }
+
+        x->parent = y->parent;
+
+        if (y->parent == NIL)
+        {
+            root = x;
+        }
+        else if (y == y->parent->right)
+        {
+            y->parent->right = x;
+        }
+        else
+        {
+            y->parent->left = x;
+        }
+
+        x->right = y;
+        y->parent = x;
+    }
+
+    // Stampa ricorsiva dell'albero
+    void printTree(Node *node, string indent = "", bool last = true)
+    {
+        if (node != NIL)
+        {
+            cout << indent;
+            if (last)
+            {
+                cout << "R----";
+                indent += "     ";
+            }
+            else
+            {
+                cout << "L----";
+                indent += "|    ";
+            }
+
+            string color = (node->color == RED) ? "RED" : "BLACK";
+            cout << node->key << "(" << color << ")" << endl;
+
+            printTree(node->left, indent, false);
+            printTree(node->right, indent, true);
+        }
+    }
+
+    void insert(int key){
+
+        Node *z = new Node(key);
+        Node *y = NIL;
+        Node *x = root;
+
+        while (x != NIL){
+            y = x;
+            if (z->key < x->key)
+                x = x->left;
+            else
+                x = x->right;
+        }
+
+        z->parent = y;
+        if (y == NIL){
+            root = z;
+        }
+        else if (z->key < y->key){
+            y->left = z;
+        }
+        else{
+            y->right = z;
+        }
+
+        z->left = NIL;
+        z->right = NIL;
+        z->color = RED;
+
+        insertFixup(z);
+    }
+
+    void insertFixup(Node *x){
+
+        while (x->parent->color == RED){
+
+            if (x->parent == x->parent->parent->left){
+
+                Node *uncle = x->parent->parent->right; 
+                if (uncle->color == RED){
+
+                    // Caso 1
+                    x->parent->color = BLACK;
+                    uncle->color = BLACK;
+                    x->parent->parent->color = RED;
+                    x = x->parent->parent;
+                }
+                else{
+
+                    if (x == x->parent->right)
+                    {
+                        // Caso 2
+                        x = x->parent;
+                        leftRotate(x);
+                    }
+                    // Caso 3
+                    x->parent->color = BLACK;
+                    x->parent->parent->color = RED;
+                    rightRotate(x->parent->parent);
+                }
+            }
+            else{
+                // Simmetrico
+                Node *y = x->parent->parent->left;
+                if (y->color == RED){
+
+                    x->parent->color = BLACK;
+                    y->color = BLACK;
+                    x->parent->parent->color = RED;
+                    x = x->parent->parent;
+                }
+                else{
+
+                    if (x == x->parent->left){
+                        
+                        x = x->parent;
+                        rightRotate(x);
+                    }
+                    x->parent->color = BLACK;
+                    x->parent->parent->color = RED;
+                    leftRotate(x->parent->parent);
+                }
+            }
+        }
+        root->color = BLACK;
+    }
+
+    // Per test: imposta la radice manualmente
+    void setRoot(Node *r)
+    {
+        root = r;
+    }
+
+    // Ottieni la radice (per stampa o test)
+    Node *getRoot()
+    {
         return root;
     }
 
-    Node* getNIL() {
+    // Ottieni il nodo NIL
+    Node *getNIL()
+    {
         return NIL;
     }
 };
 
+// -------------------- MAIN --------------------
 
-int main() {
+int main()
+{
     RedBlackTree tree;
 
-    // Creiamo manualmente 3 nodi
-    Node* x = new Node(10);
-    Node* y = new Node(20);
-    Node* nil = tree.getNIL();  // Puntatore al nodo NIL
+    tree.insert(10);
+    tree.insert(20);
+    tree.insert(30);
+    tree.insert(15);
+    tree.insert(25);
+    tree.insert(5);
 
-    // Impostiamo i collegamenti per simulare un piccolo albero:
-    //    x
-    //     \
-    //      y
-    x->right = y;
-    y->parent = x;
+    cout << "\nAlbero Red-Black prima di inserire un altro nodo:\n";
+    tree.printTree(tree.getRoot());
 
-    x->left = nil;
-    y->left = nil;
-    y->right = nil;
-    x->parent = nil;
+    tree.insert(17);
 
-    // Impostiamo la radice
-    // (notare che tree.root è privato, quindi qui bisognerebbe estendere la classe per settarlo direttamente)
-    // Per il test, simuliamo con una funzione interna: usiamo x come radice
-    tree.leftRotate(x);  // Eseguiamo la rotazione sinistra su x
-
-    cout << "Dopo leftRotate:\n";
-    cout << "Nuova radice: " << y->key << endl;
-    cout << "Sinistro di root: " << y->left->key << endl;
-
-    // Ora facciamo una rightRotate su y per tornare alla situazione iniziale
-    tree.rightRotate(y);
-
-    cout << "\nDopo rightRotate:\n";
-    cout << "Nuova radice: " << x->key << endl;
-    cout << "Destro di root: " << x->right->key << endl;
-
-    // Pulizia
-    delete x;
-    delete y;
+    cout << "\nAlbero Red-Black DOPO aver inserito un altro nodo:\n";
+    tree.printTree(tree.getRoot());
 
     return 0;
 }
-
