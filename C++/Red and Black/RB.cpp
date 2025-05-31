@@ -150,6 +150,21 @@ public:
         }
     }
 
+    // Sostituisce il sottoalbero radicato in u con quello radicato in v nel Red-Black Tree
+    void transplant(Node* u, Node* v) {
+        if (u->parent == nullptr) {
+            root = v;
+        } else if (u == u->parent->left) {
+            u->parent->left = v;
+        } else {
+            u->parent->right = v;
+        }
+        if (v != nullptr) {
+            v->parent = u->parent;
+        }
+    }
+
+
     void insert(int key){
 
         Node *z = new Node(key);
@@ -184,7 +199,7 @@ public:
 
     void insertFixup(Node *x){
 
-        while (x->parent->color == RED){
+        while (x->parent->color == RED) {
 
             if (x->parent == x->parent->parent->left){
 
