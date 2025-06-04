@@ -1,3 +1,9 @@
+//Bellman-Ford risolve il problema dei cammini minimi da sorgente unica nel caso 
+//generale in cui i pesi degli archi possono essere negativi.
+//L'algoritmo restituisce un valore booleano che indica se esiste 
+//oppure noppure no un ciclo di peso negativo che e' raggiungibile dalla sorgente.
+
+
 initialize_single_source(graph, source):
     for node in (graph.nodes - source):
         node.d = infinite
@@ -23,44 +29,3 @@ bellman_ford(graph, weights, source):
             return false
 
     return true
-
-
-
-initialize_single_source(G, source){
-
-    for node in G.nodes - source{
-        node.d = inf
-        node.predecessor = null
-    }
-
-    source.d = 0
-    source.predecessor = null
-}
-
-relax( node1, node2, weights){
-
-    if node2.d > node1.d + weights(node1, node2){
-        node2.d = node1.d + weights(node1, node2)
-        node2.predecessor = null
-    }
-
-}
-
-bellman_ford(G, source, weights){
-
-    initialize_single_source(G, source)
-
-    for i = 1 to G.nodes - 1{
-        for (node1, node2) in G.edges{
-            relax(node1, node2, weights)
-        }
-    }
-
-    for (node1, node2) in G.edges{
-        if node2.d > node1.d + weights(node1,node2){
-            return false
-        }
-    }
-
-    return true
-}
