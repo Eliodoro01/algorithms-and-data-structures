@@ -26,9 +26,9 @@ INSERISCI(H, k)                         // H = tabella, k = elemento da inserire
         j = h(k, i)                   // Calcola la posizione nella tabella hash
         if H[j] == k                  // Se troviamo la chiave
             return j                  // Restituisci la posizione
-        if H[j] == NIL                // Se incontriamo un bucket vuoto (non cancellato)
+        else if H[j] == NIL                // Se incontriamo un bucket vuoto (non cancellato)
             return -1                 // Chiave non presente
-        i = i + 1                     // Prova il prossimo slot                   
+        i = i + 1                   // Prova il prossimo slot                   
     return -1                         // Chiave non trovata
 
 
@@ -42,7 +42,7 @@ cancella(H,k){
             H[j] = '#'
             return "elemento cancellato con successo"
         }
-        i = i +1
+        i = i + 1
     }
 
     return "elemento non trovato"
