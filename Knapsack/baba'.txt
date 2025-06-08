@@ -1,0 +1,35 @@
+*/Gennaro è ghiotto di babà. Per il compleanno di Gennaro, sua madre si reca in pasticceria per acquistarne.
+*Sfortunatamente la pasticceria non vende babà singoli, ma soltanto N torte di babà. 
+*Ogni torta t ha un costo C[t] e un numero di babà B[t]. La madre ha deciso di spendere in pasticceria al massimo E euro.
+*Scrivere un algoritmo in pseudocodice che, ricevendo come input:
+*N torte a disposizione
+*E, la somma massima da spendere
+
+*restituisca il numero massimo di babà che possono essere acquistati.
+*Si assuma che sia possibile acquistare parti di torta.
+/*
+
+
+Funzione MassimoBaba(N, C, B, E)
+    // Calcola il rapporto babà per euro per ogni torta
+    Per t da 1 a N fai
+        rapporto[t] ← B[t] / C[t]
+
+    // Ordina le torte in base al rapporto decrescente
+    Ordina torte in base a rapporto decrescente (sort_decreasing)
+
+    totale_baba ← 0
+    budget ← E
+
+    Per ogni torta t nell'ordine ordinato fai
+        Se C[t] ≤ budget allora
+            totale_baba ← totale_baba + B[t]
+            budget ← budget - C[t]
+        Altrimenti
+            // Compra solo una parte della torta
+            frazione ← budget / C[t]
+            totale_baba ← totale_baba + B[t] * frazione
+            budget ← 0
+            Rompi ciclo
+
+    Restituisci totale_baba

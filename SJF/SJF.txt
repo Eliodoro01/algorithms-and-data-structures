@@ -1,0 +1,18 @@
+SJF-Decollo(T[1..n])
+    // Input: array T con i tempi di decollo degli aerei
+    // Output: tempo totale di attesa (turnaround) minimo
+
+    CREARE una coda di priorità min-heap Q ← vuota
+
+    PER i da 1 a n
+        INSERT(Q, T[i])  // inserisci ogni aereo con tempo tᵢ
+
+    tempo_attuale ← 0
+    attesa_totale ← 0
+
+    MENTRE Q non è vuota
+        t ← EXTRACT-MIN(Q)          // aereo con decollo più breve
+        tempo_attuale ← tempo_attuale + t
+        attesa_totale ← attesa_totale + tempo_attuale
+
+    RESTITUISCI attesa_totale
