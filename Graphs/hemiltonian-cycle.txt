@@ -44,9 +44,9 @@ recursive_hamiltonian_cycle(graph, path, current_node):
 hamiltonian_cycle(G){
     path = []
 
-    for source_node in G.nodes{
-        path.push(source_node)
-        if recursive_hamiltonian_cycle(G, path, source_node){
+    for node in G.nodes{
+        path.push(node)
+        if recursive_hamiltonian_cycle(G, path, node){
             return true
         }
         path.pop()
@@ -57,7 +57,7 @@ hamiltonian_cycle(G){
 
 
 recursive_hamiltonian_cycle(G,path, current_node){
-    if lenght(path) == lenght(G.nodes){
+    if length(path) == length(G.nodes){
         first_node = path[0]
 
         if first_node in current_node.adj_nodes{
@@ -69,7 +69,7 @@ recursive_hamiltonian_cycle(G,path, current_node){
 
     for adj_node in current_node.adj_nodes{
         if adj_node not in path{
-            path.push[adj_node]
+            path.push(adj_node)
 
             if recursive_hamiltonian_cycle(G, path, adj_node){
                 return true
@@ -80,3 +80,4 @@ recursive_hamiltonian_cycle(G,path, current_node){
 
     return false
 
+}
