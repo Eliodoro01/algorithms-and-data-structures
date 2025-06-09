@@ -1,0 +1,102 @@
+global_time = 0
+
+DFS(G){
+
+    for node in G.nodes{
+        node.color = white
+        node.predecessor = null
+        node.d = 0
+        node.f = 0
+    }
+
+    S = new stack()
+
+    for node in G.nodes{
+        if node.color== white{
+            DFS_VISIT(node, S)
+        }
+    }
+}
+
+DFS_VISIT(node, S){
+
+    global_time = global_time + 1
+    node.color = gray
+    node.d = global_time
+
+    for adj_node in node.adj{
+        if adj_node.color == white{
+            adj_node.predecessor = node
+            DFS_VISIT(adj_node, S)
+        }
+    }
+
+    global_time = global_time + 1
+    node.color = black
+    node.f = global_time
+    S.push(node)
+}
+
+TRANSPOSE_GRAPH(G){
+
+    GT = new graph()
+
+    GT.nodes = G.nodes
+
+    for node in GT.nodes{
+        node.adj = empty list
+    }
+
+    for node in GT.nodes{
+        for adj_node in node.adj{
+            corresponding = find_node_in_GT(adj_node)
+            corresponding.adj.append(find_node_in_GT(node))
+        }
+    }
+
+    return GT
+}
+
+
+SCC(G){
+
+    S = DFS(G)
+
+    GT = TRANSPOSE_GRAPH(G)
+
+    for node in GT.nodes{
+        node.color = white
+        node.predecessor = null
+    }
+
+    SCCs = new list()
+
+    while(!S.is_empty()){
+        node = S.pop()
+
+        if node.color == while{
+            currentSCC = new list()
+            DFS_VISIT_SCC(node, currentSCC)
+            SCCs.add(currentSCC)
+        }
+    }
+
+    return SCCs
+}
+
+
+DFS_VISIT_SCC(node, currentSCC){
+
+    node.color = gray
+    currentSCC.add(node)
+
+    for adj_node in node.adj{
+        if adj_node.color == white{
+            adj_node.predecessor = node
+            DFS_VISIT_SCC(adj_node, currentSCC)
+        }
+    }
+
+    node.color = black
+}
+

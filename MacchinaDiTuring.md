@@ -1,6 +1,6 @@
 # Definizione di Macchina di Turing e Insieme degli Stati Accettanti
 
-La **Macchina di Turing** è un automa a stati finiti con un **nastro di lunghezza infinita**, su cui si può **leggere e sovrascrivere dati**. Essa viene descritta dalla **sestupla**:  
+La **Macchina di Turing** è un automa a stati finiti con un **nastro di lunghezza infinita**, su cui si può **leggere e sovrascrivere dati**. Essa viene descritta dalla **settupla**:  
 
 M = (Q, Sigma, Gamma, delta, q_0, B, F) 
 
