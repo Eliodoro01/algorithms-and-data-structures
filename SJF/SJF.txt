@@ -1,18 +1,30 @@
-SJF-Decollo(T[1..n])
-    // Input: array T con i tempi di decollo degli aerei
-    // Output: tempo totale di attesa (turnaround) minimo
+SJF (Shortest Job First),
+Assignment,
+L'aereoporto di Capodichino ha fatto costruire una nuova pista di decollo e di atterraggio. Il direttore dell'aereoporto decide di utilizzare la pista per servire i nuovi N aerei che dovranno decollare dall'aereoporto.
 
-    CREARE una coda di priorità min-heap Q ← vuota
+Supponiamo che T[i] sia il tempo necessario all'i-esimo aereo per decollare, scrivere un algoritmo, in pseudocodice, che utilizzando la struttura dati coda di priorità minimizzi il tempo totale di attesa (o turnaround) degli N aerei per decollare (7 punti).
 
-    PER i da 1 a n
-        INSERT(Q, T[i])  // inserisci ogni aereo con tempo tᵢ
+Input parameter,
+T: an array of integers, where T[i] represents the time required for the i-th plane to take off,
+N: total airplanes,
 
-    tempo_attuale ← 0
-    attesa_totale ← 0
+Output,
+Return minimum total waiting time (turnaround) for all N planes
 
-    MENTRE Q non è vuota
-        t ← EXTRACT-MIN(Q)          // aereo con decollo più breve
-        tempo_attuale ← tempo_attuale + t
-        attesa_totale ← attesa_totale + tempo_attuale
+Pseudo-code
 
-    RESTITUISCI attesa_totale
+sjf(T, N):
+    queue = ∅       // min priority queue
+
+    for i = 1 to N:
+        queue.insert(T[i])
+
+    curr_time = 0
+    tot_wait = 0
+
+    while queue != ∅:
+        t = queue.extract_min()          // min launch airplane time
+        curr_time = curr_time + t
+        tot_wait = tot_wait + curr_time
+
+    return tot_wait
