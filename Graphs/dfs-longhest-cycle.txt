@@ -1,32 +1,40 @@
-/*Grafo con funzione perso W:E->R con un algoritmo ricorsivo che conta il numero di nodi nel più lungo ciclo di G*/
+/*Grafo con funzione peso W:E->R con un algoritmo ricorsivo che conta il numero di nodi nel più lungo ciclo di G*/
 
-max_cycle_length = 0  // Variabile globale per memorizzare la lunghezza del ciclo più lungo trovato
+time = 0
 
-find_longest_cycle(graph):
-    for each node in graph.nodes:       // Inizializzazione
-        node.color = white              // Tutti i nodi non visitati
-        node.predecessor = NULL         // Nessun predecessore
-    
-    for each node in graph.nodes:       // Visita tutti i nodi
-        if node.color == white:         // Se non è stato visitato
-            current_path = {}           // Mappa nodo -> profondità nel percorso corrente
-            dfs_visit(node, current_path, 0)  // Avvia DFS ricorsiva
-    
-    return max_cycle_length if max_cycle_length != 0 else NULL  // Restituisce NULL se nessun ciclo trovato
+dfs(graph):
+    max_cycle_length = 0
 
-dfs_visit(node, current_path, depth):
-    node.color = gray                   // Marca il nodo come in visita
-    current_path[node] = depth          // Aggiunge il nodo al percorso corrente con la sua profondità
+    for node in graph.nodes:
+        node.color = white
+        node.predecessor = NIL
+        node.distance = 0
+        node.end_visit = 0
+        node.depth = 0
 
-    for each adj_node in node.adj:      // Visita tutti i nodi adiacenti
-        if adj_node.color == white:     // Se non visitato
-            adj_node.predecessor = node // Imposta il predecessore
-            dfs_visit(adj_node, current_path, depth + 1)  // Visita ricorsivamente
-        else if adj_node.color == gray and adj_node != node.predecessor:  
-            // Trovato un ciclo (back edge non diretto al padre)
-            cycle_length = depth - current_path[adj_node] + 1  // Calcola lunghezza ciclo
-            max_cycle_length = max(max_cycle_length, cycle_length)  // Aggiorna massimo
-    
-    // Backtracking
-    node.color = black                  // Marca il nodo come completamente visitato
-    current_path.remove(node)           // Rimuove il nodo dal percorso corrente
+    for node in graph.nodes:
+        if node.color == white:
+            max_cycle_length = max(max_cycle_length, dfs_visit(node))
+
+    return max_cycle_length
+
+dfs_visit(node):
+    cycle_length = 0
+
+    time += 1
+    node.color = gray
+    node.distance = time
+
+    for adj_node in node.adj:
+        if adj_node.color == gray:
+            cycle_length = max(cycle_length, node.depth - adj_node.depth + 1)
+        else if adj_node.color == white:
+            adj_node.depth = node.depth + 1
+            adj_node.predecessor = node
+            cycle_length = max(cycle_length, dfs_visit(node))
+
+    node.color = black
+    time += 1
+    node.end_visit = time
+
+    return cycle_length
