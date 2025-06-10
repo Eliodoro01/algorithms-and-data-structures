@@ -8,8 +8,8 @@ dfs(graph):
     for node in graph.nodes:
         node.color = white
         node.predecessor = NIL
-        node.distance = 0
-        node.end_visit = 0
+        node.d = 0
+        node.f = 0
         node.depth = 0
 
     for node in graph.nodes:
@@ -23,7 +23,7 @@ dfs_visit(node):
 
     time += 1
     node.color = gray
-    node.distance = time
+    node.d = time
 
     for adj_node in node.adj:
         if adj_node.color == gray:
@@ -35,6 +35,6 @@ dfs_visit(node):
 
     node.color = black
     time += 1
-    node.end_visit = time
+    node.f = time
 
     return cycle_length
