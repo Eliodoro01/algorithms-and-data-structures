@@ -26,7 +26,7 @@ dfs_visit(node):
     node.d = time
 
     for adj_node in node.adj:
-        if adj_node.color == gray:
+        if adj_node.color == gray && node != adj_node:
             cycle_length = max(cycle_length, node.depth - adj_node.depth + 1)
         else if adj_node.color == white:
             adj_node.depth = node.depth + 1
