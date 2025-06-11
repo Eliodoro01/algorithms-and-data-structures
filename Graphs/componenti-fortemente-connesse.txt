@@ -1,76 +1,77 @@
-global time = 0                                // Variabile globale per tenere traccia del tempo
+global time = 0                                   // Variabile globale per il tempo
 
-DFS(G):                                         
-    for node in G.nodes:                       
-        node.color = white                     // Inizializza tutti i nodi come non visitati
-        node.predecessor = null                // Nessun predecessore all'inizio
-        node.d = 0                             // Tempo di scoperta inizializzato a 0
-        node.f = 0                             // Tempo di fine inizializzato a 0
-
-    S = new stack()                            // Stack per salvare i nodi in ordine di fine visita
+DFS(G):
+    S = new stack()                               // Stack per salvare i nodi in ordine di fine visita
 
     for node in G.nodes:
-        if node.color == white:                // Se il nodo non è stato visitato
-            DFS_VISIT(node, S)                 // Avvia DFS da quel nodo
-
-    return S                                   // Restituisce lo stack dei nodi in ordine decrescente di fine visita
-
-DFS_VISIT(node, S):
-    global time                                
-    time = time + 1                            // Incrementa il tempo globale
-    node.d = time                              // Registra il tempo di scoperta
-    node.color = gray                          // Il nodo è in fase di visita
-
-    for adj_node in node.adj:                  
-        if adj_node.color == white:            // Se il nodo adiacente non è stato visitato
-            adj_node.predecessor = node        // Imposta il predecessore
-            DFS_VISIT(adj_node, S)             // Visita ricorsivamente l'adiacente
-
-    node.color = black                         // La visita del nodo è completata
-    time = time + 1                            // Incrementa il tempo
-    node.f = time                              // Registra il tempo di fine
-    S.push(node)                               // Inserisce il nodo nello stack
-
-TRANSPOSE_GRAPH(G):
-    GT = new graph()                           
-    GT.nodes = G.nodes.copy()                  // Copia i nodi da G a GT (senza archi)
-
-    for node in GT.nodes:
-        node.adj = empty list                  // Inizializza le liste di adiacenza vuote
+        node.color = white                        // Inizializza tutti i nodi come non visitati
+        node.predecessor = null                   // Nessun predecessore inizialmente
+        node.d = 0                                // Tempo di scoperta inizializzato a 0
+        node.f = 0                                // Tempo di fine inizializzato a 0
 
     for node in G.nodes:
-        for adj_node in node.adj:
-            corresponding = find_node_in_GT(adj_node)           // Trova il nodo corrispondente in GT
-            corresponding.adj.append(find_node_in_GT(node))     // Aggiunge arco inverso (v → u)
+        if node.color == white:
+            DFS_VISIT_1(node, S)                  // DFS per riempire lo stack
 
-    return GT                                   // Restituisce il grafo trasposto
-
-SCC(G):
-    S = DFS(G)                                  // Esegue DFS sul grafo originale e ottiene lo stack
-    GT = TRANSPOSE_GRAPH(G)                     // Crea il grafo trasposto
+    GT = CREATE_T_GRAPH(G)                        // Crea il grafo trasposto
 
     for node in GT.nodes:
-        node.color = white                      // Reinizializza i colori
-        node.predecessor = null                 // Reset dei predecessori
+        node.color = white                        // Reinizializza i nodi
+        node.predecessor = null
 
-    SCCs = new list()                           // Lista per contenere tutte le SCC
+    SCCs = new list()                             // Lista delle componenti fortemente connesse
 
-    while not S.is_empty():
-        node = S.pop()                          // Estrae il nodo con il più alto tempo di fine
-        if node.color == white:                 // Se non è ancora stato visitato in GT
-            currentSCC = new list()             // Nuova lista per la SCC corrente
-            DFS_VISIT_SCC(node, currentSCC)     // DFS su GT per identificare la SCC
-            SCCs.add(currentSCC)                // Aggiunge la SCC alla lista finale
+    while !S.is_empty():
+        node = S.pop()
+        if node.color == white:
+            currentSCC = new list()
+            DFS_VISIT_2(node, currentSCC)         // DFS su grafo trasposto
+            SCCs.add(currentSCC)
 
-    return SCCs                                 // Restituisce tutte le componenti fortemente connesse
+    return SCCs                                   // Restituisce la lista delle SCC
 
-DFS_VISIT_SCC(node, currentSCC):
-    node.color = gray                           // Nodo in fase di visita
-    currentSCC.add(node)                        // Aggiunge il nodo alla componente corrente
+
+DFS_VISIT_1(node, S):
+    global time
+    time = time + 1
+    node.d = time
+    node.color = gray                             // Nodo in visita
 
     for adj_node in node.adj:
-        if adj_node.color == white:             // Se l'adiacente non è stato visitato
-            adj_node.predecessor = node         // Imposta il predecessore
-            DFS_VISIT_SCC(adj_node, currentSCC) // Visita ricorsiva
+        if adj_node.color == white:
+            adj_node.predecessor = node
+            DFS_VISIT_1(adj_node, S)
 
-    node.color = black                          // Nodo completamente esplorato
+    node.color = black                            // Nodo completamente esplorato
+    time = time + 1
+    node.f = time
+    S.push(node)                                  // Inserisce il nodo nello stack
+
+
+DFS_VISIT_2(node, currentSCC):
+    global time
+    time = time + 1
+    node.d = time
+    node.color = gray
+    currentSCC.add(node)                          // Aggiunge il nodo alla SCC corrente
+
+    for adj_node in node.adj:
+        if adj_node.color == white:
+            adj_node.predecessor = node
+            DFS_VISIT_2(adj_node, currentSCC)
+
+    node.color = black
+    time = time + 1
+    node.f = time
+
+
+CREATE_T_GRAPH(G):
+    GT = new graph()
+
+    for node in G.nodes:
+        GT.nodes.insert(node)                     // Copia i nodi
+
+    for (u, v) in G.edges:
+        GT.edges.insert((v, u))                   // Inverti la direzione degli archi
+
+    return GT

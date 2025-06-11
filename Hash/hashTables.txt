@@ -14,8 +14,7 @@ INSERISCI(H, k)                         // H = tabella, k = elemento da inserire
             return j                    // Restituisci la posizione di inserimento
         else if H[j] == k               // Se la chiave è già presente
             return -1                   // Chiave duplicata (gestione dipende dai requisiti)
-        else
-            i = i + 1                   // Prova il prossimo slot (linear probing o altro metodo)                     
+        i = i + 1                       // Prova il prossimo slot (linear probing o altro metodo)                     
     return "overflow"                   // Tabella piena
 
 
