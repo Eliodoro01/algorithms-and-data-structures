@@ -150,13 +150,13 @@ public:
 int main() {
     BinarySearchTree tree;                         // Crea l'albero
 
-    tree.insert(15);                               // Inserisce 15
-    tree.insert(6);                                // Inserisce 6
-    tree.insert(18);                               // Inserisce 18
-    tree.insert(3);                                // Inserisce 3
-    tree.insert(7);                                // Inserisce 7
-    tree.insert(17);                               // Inserisce 17
-    tree.insert(20);                               // Inserisce 20
+    tree.insert(15);                              
+    tree.insert(6);                               
+    tree.insert(18);                              
+    tree.insert(3);                              
+    tree.insert(7);                               
+    tree.insert(17);                            
+    tree.insert(20);                             
 
     cout << "In-order prima della cancellazione: ";
     tree.printInOrder();                           // Stampa ordinata prima della cancellazione
