@@ -2,6 +2,7 @@
 #include <vector>               // Per usare vettori dinamici
 #include <stack>                // Per usare lo stack (LIFO)
 #include <fstream>              // Per leggere/scrivere su file
+
 using namespace std;
 
 class Graph {

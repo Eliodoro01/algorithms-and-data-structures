@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/User/Documents/GitHub/algorithms-and-data-structures/C++/Heap",
-      "program": "c:/Users/User/Documents/GitHub/algorithms-and-data-structures/C++/Heap/build/Debug/outDebug",
+      "cwd": "c:/Users/User/Documents/GitHub/algorithms-and-data-structures/TestCPP",
+      "program": "c:/Users/User/Documents/GitHub/algorithms-and-data-structures/TestCPP/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
