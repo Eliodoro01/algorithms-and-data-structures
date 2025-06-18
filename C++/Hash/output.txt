@@ -1,0 +1,6 @@
+Index: 0, key: 0, value: ciao
+Index: 2, key: 12, value: uva
+Index: 5, key: 5, value: pippo
+Index: 6, key: 6, value: mamma
+Index: 7, key: 15, value: pluto
+Index: 8, key: 8, value: mela
