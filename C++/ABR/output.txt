@@ -1,0 +1,7 @@
+key: 40, character: A
+key: 30, character: B
+key: 15, character: C
+key: 10, character: D
+key: 5, character: E
+Successor's key: 30, successor's character: B
+Predecessor's key: 10, predecessor's character: D
