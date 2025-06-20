@@ -61,51 +61,54 @@ private:
     int V, E, time, cycleCount;
 
     void DFS_VISIT(Node* node, vector<Node*>& path, int& cycleCount) {
-        node->setColor(gray);
-        time++;
-        node->setDiscoveryTime(time);
-        path.push_back(node);
+        node->setColor(gray);                                      // Imposta il colore del nodo come GRAY (in esplorazione)
+        time++;                                                    // Incrementa il tempo globale
+        node->setDiscoveryTime(time);                              // Salva il tempo di scoperta del nodo
+        path.push_back(node);                                      // Aggiunge il nodo al cammino attuale (per rilevamento cicli)
 
-        for (Node* adj : node->getAdj()) {
-            Edge* edge = getEdge(node, adj);
-            if (!edge) continue; // Protezione da nullptr
+        for (Node* adj : node->getAdj()) {                         // Scorre tutti i nodi adiacenti
+            Edge* edge = getEdge(node, adj);                       // Ottiene l'arco tra il nodo corrente e l'adiacente
+            if (!edge) continue;                                   // Salta se l'arco non esiste (protezione da nullptr)
 
-            if (adj->getColor() == white) {
-                edge->setType(" DELL'ALBERO");
-                adj->setPredecessor(node);
-                DFS_VISIT(adj, path, cycleCount);
+            if (adj->getColor() == white) {                        // Se il nodo adiacente non è stato visitato
+                edge->setType(" DELL'ALBERO");                     // L'arco è di tipo "dell'albero"
+                adj->setPredecessor(node);                         // Imposta il predecessore del nodo adiacente
+                DFS_VISIT(adj, path, cycleCount);                  // Visita ricorsivamente il nodo adiacente
 
-            } else if (adj->getColor() == gray) {
-                edge->setType(" ALL'INDIETRO");
+            } else if (adj->getColor() == gray) {                  // Se il nodo adiacente è in esplorazione (GRAY)
+                edge->setType(" ALL'INDIETRO");                    // L'arco è "all'indietro" → c'è un ciclo
 
-                // Rilevamento del ciclo
-                cout << "Ciclo trovato: ";
-                int startIndex = -1;
-                for (int i = 0; i < path.size(); i++) {
+                cout << "Ciclo trovato: ";                         // Stampa messaggio per ciclo trovato
+                int startIndex = -1;                               // Indice di inizio del ciclo nel path
+                for (int i = 0; i < path.size(); i++) {            // Cerca il nodo adiacente nel path
                     if (path[i] == adj) {
-                        startIndex = i;
+                        startIndex = i;                            // Salva la posizione di inizio del ciclo
                         break;
                     }
                 }
-                if (startIndex != -1) {
+                if (startIndex != -1) {                            // Se trovato, stampa il ciclo
                     for (int i = startIndex; i < path.size(); i++)
-                        cout << path[i]->getValue() << " ";
-                    cout << adj->getValue() << endl;
-                    cycleCount++;
+                        cout << path[i]->getValue() << " ";        // Stampa i nodi nel ciclo
+                    cout << adj->getValue() << endl;               // Chiude il ciclo stampando nuovamente il nodo iniziale
+                    cycleCount++;                                  // Incrementa il numero di cicli trovati
                 }
 
-            } else if (adj->getColor() == black && node->getDiscoveryTime() < adj->getDiscoveryTime()) {
-                edge->setType(" IN AVANTI");
-            } else if (adj->getColor() == black && node->getDiscoveryTime() > adj->getDiscoveryTime()) {
-                edge->setType(" TRASVERSALE");
+            } else if (adj->getColor() == black &&                 // Se il nodo è già visitato e il tempo di scoperta è maggiore
+                    node->getDiscoveryTime() < adj->getDiscoveryTime()) {
+                edge->setType(" IN AVANTI");                       // L'arco è "in avanti"
+
+            } else if (adj->getColor() == black &&                 // Se il nodo è già visitato e il tempo di scoperta è minore
+                    node->getDiscoveryTime() > adj->getDiscoveryTime()) {
+                edge->setType(" TRASVERSALE");                     // L'arco è "trasversale"
             }
         }
 
-        node->setColor(black);
-        time++;
-        node->setFinishTime(time);
-        path.pop_back();
+        node->setColor(black);                                     // Termina l'esplorazione del nodo (BLACK)
+        time++;                                                    // Incrementa il tempo globale
+        node->setFinishTime(time);                                 // Salva il tempo di fine esplorazione
+        path.pop_back();                                           // Rimuove il nodo dal cammino attuale
     }
+
 
 public:
     Graph(int v, int e) : V(v), E(e), time(0), cycleCount(0) {}
