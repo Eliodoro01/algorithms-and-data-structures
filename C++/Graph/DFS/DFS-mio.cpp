@@ -93,12 +93,12 @@ private:
                     cycleCount++;                                  // Incrementa il numero di cicli trovati
                 }
 
-            } else if (adj->getColor() == black &&                 // Se il nodo è già visitato e il tempo di scoperta è maggiore
-                    node->getDiscoveryTime() < adj->getDiscoveryTime()) {
+            } else if (adj->getColor() == black && node->getDiscoveryTime() < adj->getDiscoveryTime()) {   // Se il nodo è già visitato e il tempo di scoperta è maggiore
+                    
                 edge->setType(" IN AVANTI");                       // L'arco è "in avanti"
 
-            } else if (adj->getColor() == black &&                 // Se il nodo è già visitato e il tempo di scoperta è minore
-                    node->getDiscoveryTime() > adj->getDiscoveryTime()) {
+            } else if (adj->getColor() == black && node->getDiscoveryTime() > adj->getDiscoveryTime()) {    // Se il nodo è già visitato e il tempo di scoperta è minore
+                    
                 edge->setType(" TRASVERSALE");                     // L'arco è "trasversale"
             }
         }
