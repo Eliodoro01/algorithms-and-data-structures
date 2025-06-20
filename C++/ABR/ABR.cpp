@@ -1,244 +1,173 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <unordered_map>
-#include <string>
-
+#include <iostream>                                // Libreria per input/output
 using namespace std;
 
 class Node {
-    private:
-        int key;
-        char character;
-        Node* left;
-        Node* right;
-        Node* parent;
+public:
+    int key;                                       // Valore del nodo
+    Node* left;                                    // Puntatore al figlio sinistro
+    Node* right;                                   // Puntatore al figlio destro
+    Node* parent;                                  // Puntatore al padre
 
-    public:
-        Node(int k, char c) : key(k), character(c), left(nullptr), right(nullptr), parent(nullptr) {}
-
-        int getKey() { return key; };
-        char getCharacter() { return character; }
-        Node* getLeft() { return left; }
-        Node* getRight() { return right; }
-        Node* getParent() { return parent; }
-
-        void setLeft(Node* n) { left = n; }
-        void setRight(Node* n) { right = n; }
-        void setParent(Node* n) { parent = n; }
+    Node(int key) {
+        this->key = key;                           // Inizializza il valore del nodo
+        left = right = parent = nullptr;           // Inizializza i puntatori a null
+    }
 };
 
-class ABR {
-    private:
-        Node* root;
-        unordered_map<char, string> huffmanTable;
+class BinarySearchTree {
+private:
+    Node* root;                                    // Radice dell’albero
 
-        void buildHuffmanTable(Node* node, string path) {
-            if (node == nullptr)
-                return;
-
-            if (node->getLeft() == nullptr && node->getRight() == nullptr && node->getCharacter() != '*')
-                huffmanTable[node->getCharacter()] = path;
-
-            buildHuffmanTable(node->getLeft(), path + "0");
-            buildHuffmanTable(node->getRight(), path + "1");
+    void transplant(Node* u, Node* v) {            // Sostituisce il sottoalbero radicato in u con v
+        if (u->parent == nullptr) {
+            root = v;                              // Se u è la radice, aggiorna la radice
+        } else if (u == u->parent->left) {
+            u->parent->left = v;                   // Se u è figlio sinistro, aggiorna il padre
+        } else {
+            u->parent->right = v;                  // Se u è figlio destro, aggiorna il padre
         }
-
-        Node* insertRec(Node* node, int key, char character) {
-            if (node == nullptr)
-                return new Node(key, character);
-
-            if (key < node->getKey()) {
-                Node* leftChild = insertRec(node->getLeft(), key, character);
-                node->setLeft(leftChild);
-                leftChild->setParent(node);
-            }
-            else {
-                Node* rightChild = insertRec(node->getRight(), key, character);
-                node->setRight(rightChild);
-                rightChild->setParent(node);
-            }
-
-            return node;
+        if (v != nullptr) {
+            v->parent = u->parent;                 // Imposta il nuovo padre per v
         }
+    }
 
-        void preorderRec(Node* node, ofstream& out) {
-            if (node == nullptr)
-                return;
-
-            out << "Key: " << node->getKey() << ", character: " << node->getCharacter() << endl;
-            preorderRec(node->getLeft(), out);
-            preorderRec(node->getRight(), out);
+    Node* treeMinimum(Node* node) {                // Trova il minimo del sottoalbero
+        while (node->left != nullptr) {
+            node = node->left;                     // Vai sempre a sinistra
         }
+        return node;                               // Restituisce il nodo minimo
+    }
 
-        Node* minimum(Node* x) {
-            while (x->getLeft() != nullptr)
-                x = x->getLeft();
-            return x;
+    Node* treeMaximum(Node* node) {                // Trova il massimo del sottoalbero
+        while (node->right != nullptr) {
+            node = node->right;                    // Vai sempre a destra
         }
+        return node;                               // Restituisce il nodo massimo
+    }
 
-        Node* maximum(Node* x) {
-            while (x->getRight() != nullptr)
-                x = x->getRight();
-            return x;
+    Node* successor(Node* x) {                     // Trova il successore in ordine
+        if (x->right != nullptr)
+            return treeMinimum(x->right);          // Il minimo del sottoalbero destro
+
+        Node* y = x->parent;
+        while (y != nullptr && x == y->right) {
+            x = y;
+            y = y->parent;                         // Risali l’albero finché non cambi direzione
         }
+        return y;
+    }
 
-    public:
-        ABR() : root(nullptr) {}
+    Node* predecessor(Node* x) {                   // Trova il predecessore in ordine
+        if (x->left != nullptr)
+            return treeMaximum(x->left);           // Il massimo del sottoalbero sinistro
 
-        Node* getRoot() { return root; }
+        Node* y = x->parent;
+        while (y != nullptr && x == y->left) {
+            x = y;
+            y = y->parent;                         // Risali finché non cambi direzione
+        }
+        return y;
+    }
 
-        void insert(int key, char character) { root = insertRec(root, key, character); }
-        void preorder(ofstream& out) { preorderRec(root, out); }
+public:
+    BinarySearchTree() {
+        root = nullptr;                            // Inizializza la radice a null
+    }
 
-        Node* search(Node* node, int key) {
-            if (node == nullptr || node->getKey() == key)
-                return node;
+    void insert(int key) {
+        Node* z = new Node(key);                   // Crea nuovo nodo
+        Node* y = nullptr;                         // Nodo padre
+        Node* x = root;                            // Nodo corrente
 
-            if (key < node->getKey())
-                return search(node->getLeft(), key);
+        while (x != nullptr) {                     // Cerca la posizione per il nuovo nodo
+            y = x;
+            if (z->key < x->key)
+                x = x->left;
             else
-                return search(node->getRight(), key);
+                x = x->right;
         }
 
-        Node* getSuccessor(Node* x) {
-            if (x == nullptr)
-                return nullptr;
+        z->parent = y;                             // Imposta il padre di z
+        if (y == nullptr) {
+            root = z;                              // Se l’albero era vuoto, z è la radice
+        } else if (z->key < y->key) {
+            y->left = z;                           // Inserisce a sinistra
+        } else {
+            y->right = z;                          // Inserisce a destra
+        }
+    }
 
-            if (x->getRight() != nullptr)
-                return minimum(x->getRight());
-
-            Node* y = x->getParent();
-            while (y != nullptr && x == y->getRight()) {
-                x = y;
-                y = y->getParent();
+    void deleteNode(Node* z) {
+        if (z->left == nullptr) {
+            transplant(z, z->right);               // Caso 1: solo figlio destro
+        } else if (z->right == nullptr) {
+            transplant(z, z->left);                // Caso 2: solo figlio sinistro
+        } else {
+            Node* y = treeMinimum(z->right);       // Trova il successore
+            if (y->parent != z) {
+                transplant(y, y->right);           // Rimpiazza y con suo figlio destro
+                y->right = z->right;               // Collega il sottoalbero destro
+                if (y->right != nullptr)
+                    y->right->parent = y;
             }
-
-            return y;
+            transplant(z, y);                      // Sostituisci z con y
+            y->left = z->left;                     // Collega il sottoalbero sinistro
+            if (y->left != nullptr)
+                y->left->parent = y;
         }
+        delete z;                                  // Dealloca il nodo
+    }
 
-        void writeSuccessor(Node* x, ofstream& out) {
-            Node* succ = getSuccessor(x);
-
-            if (succ != nullptr)
-                out << "Successor's key: " << succ->getKey() << ", successor's character: " << succ->getCharacter() << endl;
+    Node* search(int key) {
+        Node* current = root;
+        while (current != nullptr && current->key != key) {
+            if (key < current->key)
+                current = current->left;           // Vai a sinistra se il valore è minore
             else
-                out << "This node doesn't have a successor!" << endl;
+                current = current->right;          // Vai a destra altrimenti
         }
+        return current;                            // Ritorna il nodo trovato o nullptr
+    }
 
-        Node* getPredecessor(Node* x) {
-            if (x == nullptr)
-                return nullptr;
-
-            if (x->getLeft() != nullptr)
-                return maximum(x->getLeft());
-
-            Node* y = x->getParent();
-            while (y != nullptr && x == y->getLeft()) {
-                x = y;
-                y = y->getParent();
-            }
-
-            return y;
+    void inorderTraversal(Node* node) {
+        if (node != nullptr) {
+            inorderTraversal(node->left);          // Visita sinistra
+            cout << node->key << " ";              // Stampa il nodo
+            inorderTraversal(node->right);         // Visita destra
         }
+    }
 
-        void writePredecessor(Node* x, ofstream& out) {
-            Node* pred = getPredecessor(x);
+    void printInOrder() {
+        inorderTraversal(root);                    // Avvia la visita dall’alto
+        cout << endl;
+    }
 
-            if (pred != nullptr)
-                out << "Predecessor's key: " << pred->getKey() << ", predecessor's character: " << pred->getCharacter() << endl;
-            else
-                out << "This node doesn't have a predecessor!" << endl;
-        }
-
-        void generateHuffmanTable() {
-            buildHuffmanTable(root, "");
-        }
-
-        string encodeString(string input) {
-            string encoded;
-            for (char c : input) {
-                if (huffmanTable.find(c) != huffmanTable.end())
-                    encoded += huffmanTable[c];
-                else {
-                    cout << "Il carattere non e' stato trovato!" << endl;
-                    return "";
-                }
-            }
-
-            return encoded;
-        }
-
-        string decodeString(string encoded) {
-            string decoded;
-            Node* currentNode = root;
-
-            for (char bit : encoded) {
-                if (bit == '0')
-                    currentNode = currentNode->getLeft();
-                else if (bit == '1')
-                    currentNode = currentNode->getRight();
-
-                if (currentNode->getLeft() == nullptr && currentNode->getRight() == nullptr) {
-                    decoded += currentNode->getCharacter();
-                    currentNode = root;
-                }
-            }
-
-            return decoded;
-        }
-
-        void transplant(Node* x, Node* y) {
-            if (x->getParent() == nullptr)
-                root = y;
-            else if (x == x->getParent()->getLeft())
-                x->getParent()->setLeft(y);
-            else
-                x->getParent()->setRight(y);
-
-            if (y != nullptr)
-                y->setParent(x->getParent());
-        }
+    Node* getRoot() {
+        return root;                               // Restituisce la radice dell’albero
+    }
 };
 
 int main() {
-    ifstream in("input.txt");
-    ofstream out("output.txt");
+    BinarySearchTree tree;                         // Crea l'albero
 
-    ABR abr;
+    tree.insert(15);                              
+    tree.insert(6);                               
+    tree.insert(18);                              
+    tree.insert(3);                              
+    tree.insert(7);                               
+    tree.insert(17);                            
+    tree.insert(20);                             
 
-    int k;
-    char c;
-    while (in >> k >> c)
-        abr.insert(k, c);
+    cout << "In-order prima della cancellazione: ";
+    tree.printInOrder();                           // Stampa ordinata prima della cancellazione
 
-    abr.preorder(out);
+    Node* z = tree.search(6);                      // Cerca il nodo con chiave 6
+    if (z != nullptr) {
+        tree.deleteNode(z);                        // Cancella il nodo
+    }
 
-    Node* x = abr.search(abr.getRoot(), 15);
-    abr.writeSuccessor(x, out);
-
-    x = abr.search(abr.getRoot(), 15);
-    abr.writePredecessor(x, out);
-
-    in.close();
-    out.close();
-
-    /*
-    abr.generateHuffmanTable();
-
-    string encodedString = abr.encodeString("ACE");
-    cout << "Encoded string: " << encodedString << endl;
-
-    string decodedString = abr.decodeString(encodedString);
-    cout << "Decoded string: " << decodedString << endl;
-
-
-    x = abr.search(abr.getRoot(), 30);
-    Node* y = abr.search(abr.getRoot(), 50);
-    abr.transplant(x,y);
-    abr.preorder(out);
-    out.close();
-    */
+    cout << "In-order dopo la cancellazione di 6: ";
+    tree.printInOrder();                           // Stampa dopo la cancellazione
 
     return 0;
 }
