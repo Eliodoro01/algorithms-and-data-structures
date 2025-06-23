@@ -45,7 +45,8 @@ public:
         vector<bool> visited(V, false);            // Vettore di nodi visitati
 
         for (int i = 0; i < V; i++) {              // Prima DFS: riempi lo stack
-            if (!visited[i]) dfs(i, visited, Stack);
+            if (!visited[i]) 
+                dfs(i, visited, Stack);
         }
 
         fill(visited.begin(), visited.end(), false); // Reset del vettore visited
@@ -66,9 +67,9 @@ public:
 };
 
 int main() {
-    ifstream in("grafo.txt");                          // Apre il file in input
+    ifstream in("input.txt");                          // Apre il file in input
     if (!in) {
-        cerr << "Errore apertura file grafo.txt" << endl;
+        cerr << "Errore apertura file" << endl;
         return 1;                                      // Se fallisce, esce con errore
     }
 
@@ -84,16 +85,16 @@ int main() {
     }
     in.close();                                        // Chiude il file in input
 
-    ofstream out("componenti.txt");                    // Apre file in scrittura
+    ofstream out("output.txt");                    // Apre file in scrittura
     if (!out) {
-        cerr << "Errore apertura file componenti.txt" << endl;
+        cerr << "Errore apertura file " << endl;
         return 1;                                      // Se fallisce, esce con errore
     }
 
     g.printSCCs(out);                                  // Stampa le SCC su file
     out.close();                                       // Chiude il file in output
 
-    cout << "Componenti fortemente connesse scritte in componenti.txt" << endl;
+    cout << "Componenti fortemente connesse scritte " << endl;
 
     return 0;
 }

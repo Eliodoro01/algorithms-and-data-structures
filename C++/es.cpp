@@ -1,232 +1,132 @@
 #include <stdio.h>
-#include <fstream>
 #include <iostream>
-#include <vector>
-#include <climits>
-
+#include <fstream>
 
 using namespace std;
 
-enum Color{white, gray, black};
 
 class Node{
 
     private:
         Node* predecessor;
-        int key;
-        Color color;
-        vector<Node*> adj;
-        int startVisitTime;
-        int finishVisitTime;
-    
+        Node* left;
+        Node* right;
+        int value;
+
     public:
-        Node(int value) : key(value), predecessor(nullptr), color(white), startVisitTime(INT_MAX), finishVisitTime(INT_MAX){}
+
+        Node(int v) : value(v), left(nullptr), right(nullptr), predecessor(nullptr){}
 
         Node* getPredecessor(){return predecessor;}
-        int getKey(){return key;}
-        vector<Node*> getAdj(){return adj;}
-        Color getColor(){return color;}
-        int getStartVisit(){return startVisitTime;}
-        int getFinishVisit(){return finishVisitTime;}
+        Node* getLeft(){return left;}
+        Node* getRight(){return right;}
+        int getValue(){return value;}
 
-        void setPredecessor(Node* node){predecessor = node;}
-        void setColor(Color c){color = c;}
-        void setAdj(Node* adj_node){adj.push_back(adj_node);}
-        void setStartVisit(int d){startVisitTime = d;}
-        void setFinishVisit(int f){finishVisitTime = f;}
+        void setPredecessor(Node* p){predecessor = p;}
+        void setLeft(Node* l){left = l;}
+        void setRight(Node* r){right = r;}
 };
 
-class Edge{
+class ABR{
 
     private:
-        Node* src;
-        Node* dest;
-        int weight;
-        string type;
+        Node* root;
 
-    public:
-
-        Edge(Node* u, Node* v, int w) : src(u), dest(v), weight(w){}
-
-        Node* getDest(){return dest;}
-        Node* getSrc(){return src;}
-        int getWeight(){return weight;}
-        string getType(){return type;}
-
-        void setSrc(Node* u){src = u;}
-        void setDest(Node* v){dest = v;}
-        void setWeight(int w){weight = w;}
-        void setType(string t){type = t;}
-
-};
-
-
-class Graph{
-
-    private: 
-        vector<Node*> nodes;
-        vector<Edge*> edges;
-        int V, E, time, cycleCount;
-
-        void DFS_VISIT(Node * node, vector<Node*> path){
-
-            node->setColor(gray);
-            time++;
-            node->setStartVisit(time);
-            path.push_back(node);
-
-            for(Node* adj : node->getAdj()){
-                Edge* edge = getEdge(node, adj);
-
-                if(adj->getColor() == white){
-                    edge->setType("dell'albero");
-                    adj->setPredecessor(node);
-
-                    DFS_VISIT(adj, path);
-                }
-                else if(adj->getColor() == gray){
-                    edge->setType("all'indietro");
-
-                    cout<<"ciclo trovato"<<endl;
-                    int startIndex = -1;
-                    for(int i = 0; i < path.size(); i++){
-                        if(path[i] == adj){
-                            startIndex = i;
-                            break;
-                        }
-                    }
-                    if(startIndex != -1){
-                        for(int i = startIndex; i < path.size(); i++){
-                            cout<< path[i]->getKey() << " ";
-                        }
-                        cout<< adj->getKey() << endl;
-                        cycleCount++;
-                    }
-                }
-                else if(adj->getColor() == black && node->getStartVisit() > adj->getStartVisit())
-                    edge->setType("trasversale");
-                else if(adj->getColor() == black && node->getStartVisit() < adj->getStartVisit())
-                    edge->setType("in avanti");
-            }
-
-            node->setColor(black);
-            time++;
-            node->setFinishVisit(time);
-            path.pop_back();
-        }
-
-    public:
-
-        Graph(int v, int e) : V(v), E(e), time(0), cycleCount(0){}
-
-        int getCycleCount(){
-            return cycleCount;
-        }
-
-        Node* getNode(int key){
-            for(auto& node : nodes){
-                if(node->getKey() == key){
-                    return node;
-                }
-            }
-            return nullptr;
-        }
-
-        void addNode(Node* node){
-            nodes.push_back(node);
-            if(nodes.size() > V){
-                V = nodes.size();
-            }
-        }
-
-        Edge* getEdge(Node* src, Node* dest){
-
-            for(auto& edge : edges){
-                if(edge->getSrc() == src && edge->getDest() == dest){
-                    return edge;
-                }
-            }
-            return nullptr;
-        }
-
-        void addEdge(Node* src, Node* dest, int weight){
-            edges.push_back(new Edge(src, dest, weight));
+        Node* insertRec(Node* node, int key){
+            if(node == nullptr)
+                return new Node(key);
             
-            src->setAdj(dest);
-            if(edges.size() > E){
-                E = edges.size();
+            if(key < node->getValue()){
+                Node* leftChild = insertRec(node->getLeft(),key);
+                node->setLeft(leftChild);
+                leftChild->setPredecessor(node);
             }
+            else{
+                Node* rightChild = insertRec(node->getRight(), key);
+                rightChild->setPredecessor(node);
+                node->setRight(rightChild);
+            }
+
+            return node;
         }
 
-        void DFS(){
+        Node* minimum(Node* x){
 
-            for(auto& node : nodes){
-                node->setColor(white);
-                node->setPredecessor(nullptr);
+            while(x->getLeft() != nullptr){
+                x = x->getLeft();
             }
-
-            vector<Node*>path;
-            cycleCount =0;
-
-            for(auto& node : nodes){
-                if(node->getColor() == white){
-                    DFS_VISIT(node, path);
-                }
-            }
+            return x;
         }
 
-        void print(ofstream& out){
-            for(auto& node : nodes){
-                out<< node->getKey() << endl;
+        Node* maximum(Node* x){
+
+            while(x->getRight() != nullptr){
+                x = x->getRight();
             }
+            return x;
         }
 
-        void printEdges(){
-            for(auto& edge : edges){
-                cout << " L'arco(" << edge->getSrc()->getKey() << "," << edge->getDest()->getKey() << ") e' un arco " << edge->getType()<<endl; 
+    public:
+        ABR() : root(nullptr){};
+
+        Node* getSuccessor(Node* x){
+            if(x == nullptr)
+                return nullptr;
+            
+            if(x->getRight() != nullptr){
+                return minimum(x->getRight());
             }
+
+            Node* y = x->getPredecessor();
+
+            while(y != nullptr && x == y->getRight()){
+                x= y;
+                y = y->getPredecessor();
+            }
+
+            return y;
         }
-    
+
+        Node* getPredecessor(Node* x){
+
+            if(x == nullptr){
+                return nullptr;
+            }
+
+            if(x->getLeft() != nullptr){
+                return maximum(x->getLeft());
+            }
+
+            Node* y = x->getPredecessor();
+            while(y != nullptr && x == y->getLeft()){
+                x = y;
+                y = y->getPredecessor();
+            }
+
+            return y;
+
+        }
+
+        Node* search(Node* node, int key){
+
+            if(node == nullptr || node->getValue() == key)
+                return node;
+            
+            if(key < node->getValue()){
+                return search(node->getLeft(), key);
+            }
+            else
+                return search(node->getRight(), key);
+            
+        }
+
+        void preorder(Node* node,ofstream& out){
+
+            if(node == nullptr)
+                return;
+
+            out << "value: " << node->getValue() << 
+        }
+
+
 };
-
-
-int main(){
-
-    ifstream in("input.txt");
-    ofstream out("output.txt");
-
-    int V, E;
-
-    in >> V >> E;
-
-    Graph gp(V,E);
-
-    for(int i = 0; i < V; i++){
-        gp.addNode(new Node(i));
-    }
-
-    for(int i = 0; i < E; i++){
-        int u,v, w;
-
-        in >> u >> v >> w;
-
-        Node* src = gp.getNode(u);
-        Node* dest = gp.getNode(v);
-        
-        if(src != nullptr && dest != nullptr)
-            gp.addEdge(src, dest, w);
-        else   
-            cout << "Errore: nodo " << u << " o " << v << " non esistente!" << endl;
-    }
-
-    gp.DFS();
-    gp.print(out);
-    gp.printEdges();
-
-    in.close();
-    out.close();
-
-    cout << " numero di cicli trovati: " << gp.getCycleCount() << endl;
-    
-
-}
