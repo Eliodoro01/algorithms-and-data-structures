@@ -1,190 +1,123 @@
+#include <vector>
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <stdio.h>
 
 using namespace std;
 
-template <typename T, typename X>
+template<typename K, typename V>
+class Item{
 
-class item{
     private:
-        T key;
-        X value;
-    
-    public:
-        item(T key, X value) : key(key), value(value){}
+        K key;
+        V value;
 
-        T getKey(){ return key;}
-        X getValue(){ return value;}
+    public:
+        Item(K k, V v) : key(k), value(v){}
+
+        K getKey(){return key;}
+        V getValue(){return value;}
+
 };
 
-template <typename T, typename X>
+template<typename K, typename V>
+class HashTable {
+private:
+    vector<Item<K,V>*> hash_table;
+    int size;
 
-class hashTable{
+public:
+    HashTable(ifstream& in , int s) : size(s) {
+        hash_table.resize(size, nullptr); // inizializza a nullptr
 
-    private:
-        vector<item<T,X>*> table;
-        int tableSize;
-    
-    public:
-        hashTable(int m) : tableSize(m) { table.resize(m, nullptr)};
+        K key; V value;
+        while(in >> key >> value)
+            insert(new Item<K, V>(key, value));
+    }
 
-        int hash(T key, int i){return (key + i) % tableSize;}
-        int quadraticHash(int key, int i){return (key + i + i*i) % tableSize;}
+    int hash(K key, int i) { 
+        return (key + i) % size; 
+    }
 
-        int doubleHash(int key, int i){
-            int hash1 = key % tableSize;
-            int hash2 = 1 + (key % (tableSize - 1));
-            return (hash1 + i * hash2) % tableSize;
-        }
+    int quadraticHash(int key, int i) {
+        return (key + i*i) % size; // oppure (key + c1*i + c2*i*i)
+    }
 
-        void insert(item<T,X>* item){
-            int i = 0;
-            int j; 
+    int doubleHash(int key, int i) {
+        int hash1 = key % size;
+        int hash2 = 1 + (key % (size - 1));
+        return (hash1 + i * hash2) % size;
+    }
 
-            do{
-                j = hash(item->getKey(), i);
+    void insert(Item<K,V>* item) {
+        int i = 0, j;
 
-                if(table[j] == nullptr){
-                    table[j] = item;
-                    return;
-                }
-                else
-                    i++;
+        do {
+            j = hash(item->getKey(), i);
+            if(hash_table[j] == nullptr) {
+                hash_table[j] = item;
+                return;
             }
-            while(i != tableSize);
+            i++;
+        } while(i != size);
 
-            cout << "Error overflow!"<<endl;
-        }
+        cout << "Error: overflow" << endl;
+    }
 
-        void print(ofstream& out){
-            for(int i = 0; i < tableSize; i++){
-                if(table[i] != nullptr)
-                    out << "Index: " << i << ", key: " << table[i]->getKey()<< ", value: " << table[i]->getValue() << endl;
-                
+    void delete_hash(K key) {
+        int i = 0, j;
+
+        do {
+            j = hash(key, i);
+            if(hash_table[j] == nullptr)
+                return;
+            if(hash_table[j]->getKey() == key) {
+                hash_table[j] = nullptr;
+                return;
             }
-        }
+            i++;
+        } while(i != size);
 
-        string find(T key){
+        cout << "Elemento non trovato" << endl;
+    }
 
-            int i = 0;
-            int j;
+    int find_hash(K key) {
+        int i = 0, j;
 
-            do{
-                j = hash(key, i);
-
-                if(table[j]->getValue() == key)
-                    return table[j]->getValue();
-
-                if(table[j] == nullptr)
-                    continue;
-
-                i++
+        do {
+            j = hash(key, i);
+            if(hash_table[j] == nullptr)
+                return -1;
+            if(hash_table[j]->getKey() == key) {
+                cout << "Elemento " << key << " trovato all'indice " << j << endl;
+                return j;
             }
-            while(table[j] != nullptr && i != tableSize);
+            i++;
+        } while(i != size);
 
-            return "";
+        cout << "Elemento non trovato" << endl;
+        return -1;
+    }
+
+    void print() {
+        for(int i = 0; i < size; i++) {
+            if(hash_table[i] != nullptr)
+                cout << "Index " << i << ": Key = " << hash_table[i]->getKey() << ", Value = " << hash_table[i]->getValue() << endl;
+            else
+                cout << "Index " << i << ": empty" << endl;
         }
-
-        /*
-        int find(T key){
-            int i = 0;
-            int j;
-
-            do{
-                j = hash(key, i);
-
-                if(table[j] == nullptr)
-                    continue;
-                if(table[j]->getKey() == key)
-                    return table[j]->getValue();
-
-                i++;
-            }while (table[j] != nullptr && i != tableSize);
-
-            return -1
-        }
-        */
-
-        void Delete(T key){
-
-            int i = 0;
-            int j;
-
-            do{
-                j = hash(key, i);
-
-                if(table[j] == nullptr)
-                    continue;
-                
-                if(table[j]->getKey() == key){
-                    table[j] = nullptr;
-
-                    cout << "Hash table dopo l'eliminazione:" << endl;
-                    for(int i = 0; i < tableSize; i++)
-                        if(table[i] != nullptr)
-                            cout<< "Index: " << i << ", key:" << table[i]->getKey() << ", value: "<< table[j]->getKey() << endl;
-                        
-                        
-                    return;
-                }
-
-                i++;
-            }while(table[j] != nullptr && i != tableSize);
-        }
+    }
 };
 
 
 int main() {
     ifstream in("input.txt");
-    ofstream out("output.txt");
+    HashTable<int, string> ht(in, 10);
 
-    hashTable<int,string> ht(10);
-
-    while (!in.eof()) {
-        int i;
-        string s;
-        in >> i >> s;
-        item<int, string>* newItem = new item<int, string>(i, s);
-        ht.insert(newItem);
-    }
-
-    /*
-    hashTable<char,int> ht(10);
-
-    while (!in.eof()) {
-        char i;
-        int s;
-        in >> i >> s;
-        item<char, int>* newItem = new item<char, int>(i, s);
-        ht.insert(newItem);
-    }
-    */
-
-    ht.print(out);
+    ht.find_hash(3);
+    ht.delete_hash(0);
+    ht.print();
 
     in.close();
-    out.close();
-
-    int keySearched = 6;
-    string str = ht.find(keySearched);
-
-    if (str.length() == 0)
-        cout << "La stringa con chiave " << keySearched << " non è stata trovata!" << endl << endl;
-    else
-        cout << "La stringa associata alla chiave " << keySearched << " è '" << str << "'!" << endl << endl;
-
-    /*
-    char keySearched = 'u';
-    int i = ht.find(keySearched);
-
-    if (i == -1)
-        cout << "L'intero con chiave " << keySearched << " non è stato trovato!" << endl << endl;
-    else
-        cout << "L'intero associato alla chiave " << keySearched << " è '" << i << "'!" << endl << endl;
-    */
-
-    ht.Delete(12);
-
     return 0;
 }
