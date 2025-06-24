@@ -89,7 +89,7 @@ public:
             if(hash_table[j] == nullptr)
                 return -1;
             if(hash_table[j]->getKey() == key) {
-                cout << "Elemento " << key << " trovato all'indice " << j << endl;
+                cout << "Elemento trovato con valore: " << hash_table[j]->getValue() << endl;
                 return j;
             }
             i++;
@@ -114,8 +114,8 @@ int main() {
     ifstream in("input.txt");
     HashTable<int, string> ht(in, 10);
 
-    ht.find_hash(3);
-    ht.delete_hash(0);
+    ht.find_hash(5);
+    ht.delete_hash(5);
     ht.print();
 
     in.close();
