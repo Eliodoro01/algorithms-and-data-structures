@@ -1,189 +1,97 @@
-#include <stdio.h>
 #include <iostream>
+#include <vector>
 #include <fstream>
-
 
 using namespace std;
 
-class Node{
+class MaxHeap{
 
     private:
-        Node* left;
-        Node* right;
-        Node* parent;
-        int value;
+        vector<int> heap; // Vettore che rappresenta l'heap binario
+
+        int left(int i){
+            return 2*i + 1; // Indice del figlio sinistro di i
+        }
+
+        int right(int i){
+            return 2*i + 2; // Indice del figlio destro di i
+        }
+
+        int parent(int i){
+            return (i-1) / 2; // Indice del genitore del nodo i
+        }
+
+        void maxHeapify(int i, int heapSize){
+            int l = left(i);        // Calcolo indice del figlio sinistro
+            int r = right(i);       // Calcolo indice del figlio destro
+            int max = i;            // Inizialmente supponiamo che il massimo sia il nodo corrente
+
+            if(l < heapSize && heap[l] > heap[max])
+                max = l;            // Se il figlio sinistro esiste ed è maggiore, aggiorna max
+            if(r < heapSize && heap[r] > heap[max])
+                max = r;            // Se il figlio destro esiste ed è maggiore, aggiorna max
+            
+            if(max != i){
+                swap(heap[i], heap[max]);     // Se un figlio è maggiore, scambialo con il nodo corrente
+                maxHeapify(max, heapSize);    // Richiama ricorsivamente su max per mantenere proprietà heap
+            }
+        }
 
     public:
-        Node(int v) : value(v), left(nullptr), right(nullptr), parent(nullptr){}
-
-        Node* getLeft(){return left;}
-        Node* getRight(){return right;}
-        Node* getParent(){return parent;}
-        int getValue(){return value;}
-
-        void setLeft(Node* node){left = node;}
-        void setRigh(Node* node){right = node;}
-        void setParent(Node* node){parent = node;}
-};
-
-class ABR{
-
-    private:
-        Node* root;
-
-
-        Node* maximum(Node* x){
-            if(x == nullptr)
-                return nullptr;
-            while(x->getRight() != nullptr){
-                x = x->getRight();
-            }
-
-            return x;
+        MaxHeap(const vector<int>& data){
+            heap = data;           // Inizializza il vettore heap con i dati passati
+            buildMaxHeap();        // Costruisce l'heap a partire dai dati non ordinati
         }
 
-        Node* minimum(Node* x){
-            if(x == nullptr)
-                return nullptr;
-            while(x->getLeft() != nullptr){
-                x = x->getLeft();
+        void buildMaxHeap(){
+            for(int i = heap.size() / 2 - 1; i >= 0; i--){ 
+                maxHeapify(i, heap.size());  // Applica maxHeapify ai nodi non foglia (da metà verso l'alto)
             }
-
-            return x;
         }
 
-        Node* insertRec(Node* node, int key){
-            if(node == nullptr){
-                return new Node(key);
-            }
+        void heapSort(){
+            int heapSize = heap.size();      // Salva dimensione iniziale dell'heap
 
-            if(key < node->getValue()){
-                Node* leftChild = insertRec(node->getLeft(), key);
-                leftChild->setParent(node);
-                node->setLeft(leftChild);
-            }
-            else{
-                Node* rightChild = insertRec(node->getRight(), key);
-                node->setRigh(rightChild);
-                rightChild->setParent(node);
-            }
+            buildMaxHeap();                  // Ricostruisce l'heap (precauzione per sicurezza)
 
-            return node;
+            for(int i = heapSize - 1; i >= 1; i--){
+                swap(heap[0], heap[i]);      // Sposta il massimo (radice) in fondo all'array
+                heapSize--;                  // Riduce l'heap escludendo l'ultimo elemento ordinato
+                maxHeapify(0, heapSize);     // Ripristina proprietà heap sulla nuova radice
+            }
         }
 
-        void printPre(Node* root, ofstream& out){
-
-            if(root == nullptr)
-                return;
-
-            out<< "Key: "<<root->getValue() << endl;
-            printPre(root->getLeft(), out);
-            printPre(root->getRight(), out);
-        }
-
-        void printPost(Node* root, ofstream& out){
-            if(root == nullptr)
-                return;
-            
-            printPost(root->getLeft(), out);
-            printPost(root->getRight(),out);
-            out << "key: "<< root->getValue()<<endl;
-        }
-
-        void printIn(Node* root, ofstream& out){
-            if(root == nullptr)
-                return;
-            
-            printPost(root->getLeft(), out);
-            out << " key: "<< root->getValue()<<endl;
-            printPost(root->getRight(), out);
-        }
-
-        Node* searchN(Node* x, int key){
-            if(x == nullptr || key == x->getValue()){
-                return x;
+        void printHeap() const{
+            for(int val: heap){
+                cout << val << " ";          // Stampa tutti gli elementi dell'heap
             }
-
-            if(key < x->getValue()){
-                return searchN(x->getLeft(), key);
-            }
-            else
-                return searchN(x->getRight(), key);
-
+            cout << endl;
         }
-
-
-    public:
-        ABR() : root(nullptr){}
-
-        void insert( int key){ root = insertRec(root, key);}
-        void printInOrder(ofstream& out){ printIn(root, out);}
-        void printPreOrder(ofstream& out){ printPre(root, out);}
-        void printPostOrder(ofstream& out){ printPost(root,out);}
-        Node* search(int key){ return searchN(root, key);}
-        
-        Node* getPredecessor(Node* x){
-            if(x == nullptr)
-                return nullptr;
-
-            if(x->getLeft() != nullptr)
-                return maximum(x->getLeft());
-
-            Node* y = x->getParent();
-
-            while(y != nullptr && x == y->getLeft()){
-                x = y;
-                y = y->getParent();
-            }
-            return y;
-        }
-
-        Node* getSuccessor(Node* x){
-            if(x == nullptr)
-                return nullptr;
-
-            if(x->getRight() != nullptr)
-                return minimum(x->getRight());
-
-            Node* y = x->getParent();
-
-            while(y != nullptr && x == y->getRight()){
-                x = y;
-                y = y->getParent();
-            }
-            return y;
-        }
-
-                
 
 };
 
 
-int main() {
+int main(){
+
     ifstream in("input.txt");
     ofstream out("output.txt");
 
-    ABR abr;
-    int k;
+    vector<int> data;
+    int x;
 
-    while (in >> k)
-        abr.insert(k);
+   
+    while(in >> x)
+        data.push_back(x);
+    
+    MaxHeap heap(data);
+    
+    heap.printHeap();
 
-    abr.printPreOrder(out);
+    heap.heapSort();
 
-    // esempio: voglio il predecessore di 14
-    int target = 14;
-    Node* node = abr.search(target);
-
-    if (node != nullptr) {
-        Node* pred = abr.getPredecessor(node);
-        if (pred != nullptr)
-            cout << "Il predecessore di " << node->getValue() << " è: " << pred->getValue() << endl;
-        else
-            cout << "Il nodo " << node->getValue() << " non ha predecessore." << endl;
-    } else {
-        cout << "Nodo " << target << " non trovato nell'albero." << endl;
-    }
+    cout << "Heap dopo il sort"<<endl;
+    heap.printHeap();
 
     return 0;
+
 }
