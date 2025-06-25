@@ -1,47 +1,36 @@
 #include <iostream>
-#include <stdio.h>
-#include <vector>
-#include <algorithm>
-#include <stack>
-#include <climits>
 #include <fstream>
-#include <queue>
-#include <set>
+#include <vector>
+#include <climits>
 
 using namespace std;
 
-enum Color{white, black, gray};
+enum Color{white, gray, black};
 
-class Node{
+class Node {
+private:
+    int value;
+    Node* predecessor;
+    Color color;
+    vector<Node*> adj;
+    int discoveryTime;
+    int finishTime;
 
-    private:
-        int value;
-        Node* predecessor;
-        vector<Node*> adj;
-        Color color;
-        int discoveryTime;
-        int finishDiscovery;
-        int distance;
+public:
+    Node(int val) : value(val), predecessor(nullptr), color(white), discoveryTime(INT_MAX), finishTime(INT_MAX) {}
 
-    public:
+    int getValue() { return value; }
+    Node* getPredecessor() { return predecessor; }
+    Color getColor() { return color; }
+    int getDiscoveryTime() { return discoveryTime; }
+    int getFinishTime() { return finishTime; }
+    vector<Node*>& getAdj() { return adj; }
 
-        Node(int value) : value(value), predecessor(nullptr), adj(nullptr), color(white), discoveryTime(INT_MAX), finishDiscovery(INT_MAX), distance(INT_MAX){}
-
-        int getValue(){return value;}
-        Node* getPredecessor(){return predecessor;}
-        Color getColor(){return color;}
-        vector<Node*>& getAdj(){return adj;}
-        int getDiscovery(){return discoveryTime;}
-        int getFinishDiscovery(){return finishDiscovery;}
-        int getDistance(){return distance;}
-
-        void setPredecessor(Node* node){ predecessor = node;}
-        void setColor(Color c){color = c;}
-        void setAdj(Node* adj_node){adj.push_back(adj_node);}
-        void setDiscoveryTime(int disc){discoveryTime = disc;}
-        void setFinishDiscoveryTime(int finish){finishDiscovery = finish;}
-        void setDistance(int dist){distance = dist;}
-
+    void setColor(Color c) { color = c; }
+    void addAdj(Node* n) { adj.push_back(n); }
+    void setPredecessor(Node* n) { predecessor = n; }
+    void setDiscoveryTime(int d) { discoveryTime = d; }
+    void setFinishTime(int f) { finishTime = f; }
 };
 
 class Edge{
@@ -52,11 +41,15 @@ class Edge{
         int weight;
 
     public:
-        Edge(Node* u, Node* v, int w): src(u), dest(v), weight(w){}
+        Edge(Node* u, Node* v, int w) : src(u), dest(v), weight(w){}
 
         Node* getSrc(){return src;}
         Node* getDest(){return dest;}
         int getWeight(){return weight;}
+
+        void setSrc(Node* u){src = u;}
+        void setDest(Node* v){dest = v;}
+
 };
 
 class Graph{
@@ -65,7 +58,6 @@ class Graph{
         vector<Node*>nodes;
         vector<Edge*>edges;
         int V, E, time;
-        stack<Node*> L;
 
         void DFS_VISIT(Node* node){
 
@@ -73,7 +65,7 @@ class Graph{
             time++;
             node->setDiscoveryTime(time);
 
-            for(Node* adj : node->getAdj()){
+            for(auto& adj : node->getAdj()){
                 if(adj->getColor() == white){
                     adj->setPredecessor(node);
                     DFS_VISIT(adj);
@@ -82,33 +74,13 @@ class Graph{
 
             node->setColor(black);
             time++;
-            node->setFinishDiscoveryTime(time);
-            L.push(node);
-
-        }
-
-        void initializeSingleSource(Node* s){
-
-            for(auto& node : nodes ){
-                node->setDistance(INT_MAX);
-                node->setPredecessor(nullptr);
-            }
-
-            s->setDistance(INT_MAX);
-            s->setPredecessor(nullptr);
-        }
-
-        void relax(Edge* edge){
-            if(edge->getDest()->getDistance() > edge->getSrc()->getDistance() + edge->getWeight()){
-                edge->getDest()->setDistance(edge->getSrc()->getDistance() + edge->getWeight());
-                edge->getDest()->setPredecessor(edge->getSrc());
-            }
+            node->setFinishTime(time);
         }
 
     public:
         Graph(int v, int e) : V(v), E(e){}
-        
-        void addNode(Node* node){
+
+        void insertNode(Node* node){
             nodes.push_back(node);
 
             if(nodes.size() > V){
@@ -116,8 +88,16 @@ class Graph{
             }
         }
 
-        Node* getNode( int key){
-            
+        void insertEdge(Node* src, Node* dest, int weight){
+
+            edges.push_back(new Edge(src, dest, weight));
+
+            if(edges.size() > E){
+                E = edges.size();
+            }
+        }
+
+        Node* getNode(int key){
             for(auto& node : nodes){
                 if(node->getValue() == key){
                     return node;
@@ -126,21 +106,13 @@ class Graph{
             return nullptr;
         }
 
-        void addEdge(Node* src, Node* dest, int w){
-            edges.push_back(new Edge(src, dest, w));
-
-            if(edges.size() > E){
-                E = edges.size();
-            }
-        }
-
-        Edge* getEdge(Node* src, Node* dest){
+        Edge* getEdge(Node* u, Node* v){
 
             for(auto& edge : edges){
-                if(edge->getSrc() == src &&edge->getDest() == dest)
+                if(edge->getSrc() == u && edge->getDest() == v){
                     return edge;
+                }
             }
-
             return nullptr;
         }
 
@@ -158,17 +130,110 @@ class Graph{
             }
         }
 
-        void topologicalPrint(ofstream& out){
-            while(!L.empty()){
-                Node* node = L.top();
-                L.pop();
-                out << node->getValue() << endl;
+        Graph* getTraspose(){
+
+            Graph* gt = new Graph(V,E);
+
+            for(auto& node : nodes){
+                gt->insertNode(new Node(node->getValue()));
+            }
+
+            for(auto& edge : edges){
+                Node* newSrc = gt->getNode(edge->getDest()->getValue());
+                Node* newDest = gt->getNode(edge->getSrc()->getValue());
+                gt->insertEdge(newSrc, newDest, edge->getWeight());
+                newSrc->addAdj(newDest);
+            }
+
+            return gt;
+        }
+
+        void fillOrder(Node* node, vector<Node*>& stack){
+            node->setColor(gray);
+            for(auto& adj : node->getAdj()){
+                if(adj->getColor() == white){
+                    fillOrder(adj, stack);
+                }
+            }
+
+            node->setColor(black);
+            stack.push_back(node);
+        }
+
+        void DFSUtil(Node* node, vector<bool>& visited){
+            cout<<node->getValue() << " ";
+            visited[node->getValue()] = true;
+            for(auto& adj : node->getAdj()){
+                if(!visited[adj->getValue()]){
+                    DFSUtil(adj, visited);
+                }
             }
         }
 
-        void bellmanFord(Node* s, Node* d){
+        void printSCC(){
+            vector<Node*> stack;
+            for(auto& node: nodes){
+                node->setColor(white);
+            }
+            for(auto&node : nodes){
+                if(node->getColor()==white){
+                    fillOrder(node, stack);
+                }
+            }
 
+
+            Graph* gt = getTraspose();
+
+            vector<bool>visited(V, false);
+            cout << " componenti fortemente connesse: \n";
+            while(!stack.empty()){
+                Node* n = stack.back();
+                stack.pop_back();
+                Node* trasposeNode = gt->getNode(n->getValue());
+
+                if(!visited[trasposeNode->getValue()]){
+                    DFSUtil(trasposeNode, visited);
+                    cout <<endl;
+                }
+            }
+
+            delete gt;
         }
 
-
 };
+
+int main() {
+    ifstream in("input.txt");
+    if (!in) {
+        cerr << "Errore nell'apertura del file input.txt\n";
+        return 1;
+    }
+
+    int V, E;
+    in >> V >> E;
+
+    Graph g(V, E);
+
+    // Inserisci i nodi
+    for (int i = 0; i < V; ++i) {
+        Node* node = new Node(i);
+        g.insertNode(node);
+    }
+
+    // Inserisci gli archi
+    for (int i = 0; i < E; ++i) {
+        int u, v, w;
+        in >> u >> v >> w;
+        Node* src = g.getNode(u);
+        Node* dest = g.getNode(v);
+        g.insertEdge(src, dest, w);
+        src->addAdj(dest); // Connessione diretta per la DFS
+    }
+
+    in.close();
+
+    // Stampa le componenti fortemente connesse
+    g.printSCC();
+
+    return 0;
+}

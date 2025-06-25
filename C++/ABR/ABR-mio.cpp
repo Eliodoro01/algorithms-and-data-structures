@@ -1,78 +1,40 @@
+#include <stdio.h>
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <unordered_map>
-#include <string>
+
 
 using namespace std;
 
 class Node{
 
     private:
-        int key;
-        char character;
-        Node* parent;
         Node* left;
         Node* right;
+        Node* parent;
+        int value;
 
     public:
-        Node(int k, char c) : key(k), character(c), parent(nullptr), left(nullptr), right(nullptr){}
+        Node(int v) : value(v), left(nullptr), right(nullptr), parent(nullptr){}
 
-        int getKey(){return key;}
-        char getChar(){return character;}
-        Node* getParent(){return parent;}
         Node* getLeft(){return left;}
         Node* getRight(){return right;}
+        Node* getParent(){return parent;}
+        int getValue(){return value;}
 
-        void setParent(Node* p){parent = p;}
-        void setLeft(Node* l){left = l;}
-        void setRight(Node* r){right = r;}
+        void setLeft(Node* node){left = node;}
+        void setRigh(Node* node){right = node;}
+        void setParent(Node* node){parent = node;}
 };
-
 
 class ABR{
 
     private:
         Node* root;
 
-        Node* insertRec(Node* node, int key, char character){
-            if(node == nullptr)
-                return new Node(key, character);
-
-            if(key < node->getKey()){
-                Node* leftChild = insertRec(node->getLeft(), key, character);
-                node->setLeft(leftChild);
-                leftChild->setParent(node);
-            }
-            else{
-                Node* rightChild = insertRec(node->getRight(), key, character);
-                node->setRight(rightChild);
-                rightChild->setParent(node);
-            }
-
-            return node;
-
-        }
-
-        void preorderRec(Node* node, ofstream& out){
-            if(node == nullptr){
-                return;
-            }
-
-            out<<"key: "<< node->getKey()<< ", character: "<<node->getChar()<<endl;
-            preorderRec(node->getLeft(), out);
-            preorderRec(node->getRight(), out);
-        }
-
-        Node* minimum(Node* x){
-            while(x->getLeft() != nullptr){
-                x = x->getLeft();
-            }
-
-            return x;
-        }
 
         Node* maximum(Node* x){
+            if(x == nullptr)
+                return nullptr;
             while(x->getRight() != nullptr){
                 x = x->getRight();
             }
@@ -80,35 +42,108 @@ class ABR{
             return x;
         }
 
-    public:
-        ABR(): root(nullptr){}
-
-        Node* getRoot(){return root;}
-
-        void insert(int key, char character){ root = insertRec(root, key, character);}
-        void preorder(ofstream& out){preorderRec(root, out);}
-
-        Node* search(Node* node, int key){
-            if(node == nullptr || node->getKey()== key){
-                return node;
+        Node* minimum(Node* x){
+            if(x == nullptr)
+                return nullptr;
+            while(x->getLeft() != nullptr){
+                x = x->getLeft();
             }
-            if(key < node->getKey()){
-                return search(node->getLeft(), key);
+
+            return x;
+        }
+
+        Node* insertRec(Node* node, int key){
+            if(node == nullptr){
+                return new Node(key);
+            }
+
+            if(key < node->getValue()){
+                Node* leftChild = insertRec(node->getLeft(), key);
+                leftChild->setParent(node);
+                node->setLeft(leftChild);
             }
             else{
-                return search(node->getRight(), key);
+                Node* rightChild = insertRec(node->getRight(), key);
+                node->setRigh(rightChild);
+                rightChild->setParent(node);
             }
+
+            return node;
+        }
+
+        void printPre(Node* root, ofstream& out){
+
+            if(root == nullptr)
+                return;
+
+            out<< "Key: "<<root->getValue() << endl;
+            printPre(root->getLeft(), out);
+            printPre(root->getRight(), out);
+        }
+
+        void printPost(Node* root, ofstream& out){
+            if(root == nullptr)
+                return;
+            
+            printPost(root->getLeft(), out);
+            printPost(root->getRight(),out);
+            out << "key: "<< root->getValue()<<endl;
+        }
+
+        void printIn(Node* root, ofstream& out){
+            if(root == nullptr)
+                return;
+            
+            printPost(root->getLeft(), out);
+            out << " key: "<< root->getValue()<<endl;
+            printPost(root->getRight(), out);
+        }
+
+        Node* searchN(Node* x, int key){
+            if(x == nullptr || key == x->getValue()){
+                return x;
+            }
+
+            if(key < x->getValue()){
+                return searchN(x->getLeft(), key);
+            }
+            else
+                return searchN(x->getRight(), key);
+
         }
 
 
-        Node* getSuccessor(Node* x){
-            if(x == nullptr){
-                return nullptr;
-            }
+    public:
+        ABR() : root(nullptr){}
 
-            if(x->getRight() != nullptr){
-                return minimum(x->getRight());
+        void insert( int key){ root = insertRec(root, key);}
+        void printInOrder(ofstream& out){ printIn(root, out);}
+        void printPreOrder(ofstream& out){ printPre(root, out);}
+        void printPostOrder(ofstream& out){ printPost(root,out);}
+        Node* search(int key){ return searchN(root, key);}
+        
+        Node* getPredecessor(Node* x){
+            if(x == nullptr)
+                return nullptr;
+
+            if(x->getLeft() != nullptr)
+                return maximum(x->getLeft());
+
+            Node* y = x->getParent();
+
+            while(y != nullptr && x == y->getLeft()){
+                x = y;
+                y = y->getParent();
             }
+            return y;
+        }
+
+        Node* getSuccessor(Node* x){
+            if(x == nullptr)
+                return nullptr;
+
+            if(x->getRight() != nullptr)
+                return minimum(x->getRight());
 
             Node* y = x->getParent();
 
@@ -116,100 +151,39 @@ class ABR{
                 x = y;
                 y = y->getParent();
             }
-
             return y;
         }
 
-        void writeSuccessor(Node* x, ofstream& out){
+                
 
-            Node* succ = getSuccessor(x);
-
-            if(succ != nullptr){
-                out << "Successor's key: "<< succ->getKey() << ", successor's character: " << succ->getChar()<<endl;
-            }
-            else
-                out << "This node doesn't have a successor!"<<endl;
-        }
-
-        Node* getPredecessor(Node* x){
-            if(x == nullptr){
-                return nullptr;
-            }
-
-            if(x->getLeft() != nullptr){
-                return maximum(x->getLeft());
-            }
-
-            Node* y = x->getParent();
-            while(y != nullptr && x == y->getLeft()){
-                x = y;
-                y = y->getParent();
-            }
-
-            return y;
-        }
-
-        void writePredecessor(Node* x, ofstream& out) {
-            Node* pred = getPredecessor(x);
-
-            if (pred != nullptr)
-                out << "Predecessor's key: " << pred->getKey() << ", predecessor's character: " << pred->getChar() << endl;
-            else
-                out << "This node doesn't have a predecessor!" << endl;
-        }
-        
-        void transplant(Node* x, Node* y) {
-
-            if (x->getParent() == nullptr)
-                root = y;
-            else if (x == x->getParent()->getLeft())
-                x->getParent()->setLeft(y);
-            else
-                x->getParent()->setRight(y);
-
-            if (y != nullptr)
-                y->setParent(x->getParent());
-        }
 };
+
 
 int main() {
     ifstream in("input.txt");
     ofstream out("output.txt");
 
     ABR abr;
-
     int k;
-    char c;
-    while (in >> k >> c)
-        abr.insert(k, c);
 
-    abr.preorder(out);
+    while (in >> k)
+        abr.insert(k);
 
-    Node* x = abr.search(abr.getRoot(), 15);
-    abr.writeSuccessor(x, out);
+    abr.printPreOrder(out);
 
-    x = abr.search(abr.getRoot(), 15);
-    abr.writePredecessor(x, out);
+    // esempio: voglio il predecessore di 14
+    int target = 14;
+    Node* node = abr.search(target);
 
-    in.close();
-    out.close();
-
-    /*
-    abr.generateHuffmanTable();
-
-    string encodedString = abr.encodeString("ACE");
-    cout << "Encoded string: " << encodedString << endl;
-
-    string decodedString = abr.decodeString(encodedString);
-    cout << "Decoded string: " << decodedString << endl;
-
-
-    x = abr.search(abr.getRoot(), 30);
-    Node* y = abr.search(abr.getRoot(), 50);
-    abr.transplant(x,y);
-    abr.preorder(out);
-    out.close();
-    */
+    if (node != nullptr) {
+        Node* pred = abr.getPredecessor(node);
+        if (pred != nullptr)
+            cout << "Il predecessore di " << node->getValue() << " è: " << pred->getValue() << endl;
+        else
+            cout << "Il nodo " << node->getValue() << " non ha predecessore." << endl;
+    } else {
+        cout << "Nodo " << target << " non trovato nell'albero." << endl;
+    }
 
     return 0;
 }
