@@ -61,6 +61,7 @@
     "vector": "cpp",
     "memory": "cpp",
     "system_error": "cpp",
-    "iosfwd": "cpp"
+    "iosfwd": "cpp",
+    "fstream": "cpp"
   }
 }
