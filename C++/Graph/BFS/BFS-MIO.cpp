@@ -167,37 +167,66 @@ public:
         }
     }
 
-    void loadFromFile(ifstream& input) {
-        int totalNodes, totalEdges;
-        string headerLine;
+   void loadFromFile(ifstream& input) {
+    int totalNodes, totalEdges;
+    string headerLine;
 
-        getline(input, headerLine);
-        if (headerLine.front() == '<') headerLine = headerLine.substr(1);
-        if (headerLine.back() == '>') headerLine.pop_back();
-        for (char& c : headerLine) if (c == ',') c = ' ';
+    // Legge la prima riga (es. "<5,6>") con il numero totale di nodi e archi
+    getline(input, headerLine);
 
-        istringstream headerStream(headerLine);
-        headerStream >> totalNodes >> totalEdges;
+    // Rimuove il carattere '<' iniziale, se presente
+    if (headerLine.front() == '<') 
+        headerLine = headerLine.substr(1);
 
-        for (int i = 0; i < totalNodes; ++i)
-            addNode(new Node(i));
+    // Rimuove il carattere '>' finale, se presente
+    if (headerLine.back() == '>') 
+        headerLine.pop_back();
 
-        string line;
-        while (getline(input, line)) {
-            if (line.front() == '<') line = line.substr(1);
-            if (line.back() == '>') line.pop_back();
-            for (char& c : line) if (c == ',') c = ' ';
+    // Sostituisce ogni virgola con uno spazio (es. "5,6" → "5 6")
+    for (char& c : headerLine) 
+        if (c == ',') 
+            c = ' ';
 
-            istringstream edgeStream(line);
-            int srcVal, destVal, weight;
-            edgeStream >> srcVal >> destVal >> weight;
+    // Converte la stringa "5 6" in due interi: totalNodes = 5, totalEdges = 6
+    istringstream headerStream(headerLine);
+    headerStream >> totalNodes >> totalEdges;
 
-            Node* src = getNode(srcVal);
-            Node* dest = getNode(destVal);
-            if (src && dest)
-                addEdge(src, dest, weight);
-        }
+    // Aggiunge al grafo tutti i nodi numerati da 0 a totalNodes-1
+    for (int i = 0; i < totalNodes; ++i)
+        addNode(new Node(i));
+
+    string line;
+
+    // Legge le righe successive, ognuna rappresenta un arco (es. "<0,1,4>")
+    while (getline(input, line)) {
+        // Rimuove il carattere '<' iniziale
+        if (line.front() == '<') 
+            line = line.substr(1);
+
+        // Rimuove il carattere '>' finale
+        if (line.back() == '>') 
+            line.pop_back();
+
+        // Sostituisce le virgole con spazi (es. "0,1,4" → "0 1 4")
+        for (char& c : line) 
+            if (c == ',') 
+                c = ' ';
+
+        // Converte la riga in tre interi: sorgente, destinazione, peso
+        istringstream edgeStream(line);
+        int srcVal, destVal, weight;
+        edgeStream >> srcVal >> destVal >> weight;
+
+        // Recupera i puntatori ai nodi corrispondenti
+        Node* src = getNode(srcVal);
+        Node* dest = getNode(destVal);
+
+        // Se entrambi i nodi esistono, aggiunge l’arco al grafo
+        if (src && dest)
+            addEdge(src, dest, weight);
     }
+}
+
 };
 
 // === MAIN ===
