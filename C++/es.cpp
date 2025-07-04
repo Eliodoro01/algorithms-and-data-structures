@@ -1,232 +1,125 @@
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <list>
 #include <sstream>
-
 
 using namespace std;
 
-class Node{
+template<typename K, typename V>
+class Item {
+private:
+    K key;
+    V value;
 
-    private:
-        Node* parent;
-        Node* left;
-        Node* right;
-        int value;
-
-    public:
-        Node(int v) : value(v), left(nullptr), right(nullptr), parent(nullptr){}
-
-        Node* getLeft(){return left;}
-        Node* getRight(){return right;}
-        Node* getParent(){return parent;}
-        int getValue(){return value;}
-
-        void setLeft(Node* l){left = l;}
-        void setRight(Node* r){right = r;}
-        void setParent(Node* p){parent = p;}
-
+public:
+    Item(K k, V v) : key(k), value(v) {}
+    K getKey() { return key; }
+    V getValue() { return value; }
 };
 
-class ABR{
+template<typename K, typename V>
+class Hash {
+private:
+    vector<list<Item<K,V>*>> hash;
+    int size;
 
-    private:
-        Node* root;
+    int hashFunc(K key, int i) {
+        return (key * i) % size;
+    }
 
-        Node* insertRec(Node* node, int key){
-            if(node == nullptr){
-                return new Node(key);
+    void load(ifstream& in) {
+        string totalToken;
+        while (getline(in, totalToken)) {
+            if (totalToken.front() == '<')
+                totalToken = totalToken.substr(1);
+            if (totalToken.back() == '>')
+                totalToken.pop_back();
+
+            for (char& c : totalToken) {
+                if (c == ',')
+                    c = ' ';
             }
 
-            if(key < node->getValue()){
-                Node* leftChild = insertRec(node->getLeft(), key);
-                leftChild->setParent(node);
-                node->setLeft(leftChild);
-            }
-            else{
-                Node* rightChild = insertRec(node->getRight(), key);
-                rightChild->setParent(node);
-                node->setRight(rightChild);
-            }
-
-            return node;
-        }
-
-        Node* maximum(Node* node){
-            if(node == nullptr){
-                return nullptr;
-            }
-
-            while(node->getRight() != nullptr){
-                node = node->getRight();
-            }
-            return node;
-        }
-
-        Node* minimum(Node* node){
-            if(node == nullptr){
-                return nullptr;
-            }
-
-            while(node->getLeft() != nullptr){
-                node = node->getLeft();
-            }
-            return node;
-        }
-
-        Node* searchN(Node* node, int key){
-            
-            if(node == nullptr || node->getValue() == key){
-                return node;
-            }
-
-
-            if(key > node->getValue()){
-                return searchN(node->getRight(), key);
-            }
-            else{
-                return searchN(node->getLeft(), key);
+            K k;
+            V v;
+            istringstream stream(totalToken);
+            while (stream >> k >> v) {
+                insert(new Item<K, V>(k, v));
             }
         }
+    }
 
-        void printInOrder(ofstream& out, Node* root){
+public:
+    Hash(ifstream& in, int s) : size(s) {
+        hash = vector<list<Item<K,V>*>>(s); // liste vuote
+        load(in);
+    }
 
-            if(root == nullptr){
+    void insert(Item<K,V>* item) {
+        int index = hashFunc(item->getKey(), 1); // i arbitrario
+        hash[index].push_back(item);
+    }
+
+    int search(K key, int i) {
+        int index = hashFunc(key, i);
+        for (auto& item : hash[index]) {
+            if (item->getKey() == key) {
+                cout << "Item [key: " << item->getKey() << " - value: " << item->getValue() << "] found at index " << index << endl;
+                return index;
+            }
+        }
+        cout << "Key not found\n";
+        return -1;
+    }
+
+    void deleteItem(K key, int i) {
+        int index = hashFunc(key, i);
+        for (auto it = hash[index].begin(); it != hash[index].end(); ++it) {
+            auto item = *it;
+            if (item->getKey() == key) {
+                cout << "Item [key: " << item->getKey() << " - value: " << item->getValue() << "] deleted\n";
+                hash[index].erase(it);
                 return;
             }
-
-            printInOrder(out, root->getLeft());
-            out <<"Node: "<< root->getValue() << " ";
-            printInOrder(out, root->getRight());
         }
+        cout << "Key not found for deletion\n";
+    }
 
-        void printPreOrder(ofstream& out, Node* root){
-            if(root == nullptr){
-                return;
-            }
-
-            out<<"Node: "<<root->getValue() << " ";
-            printPreOrder(out, root->getLeft());
-            printPreOrder(out, root->getRight());
-        }
-
-        void printPostOrder(ofstream& out, Node* root){
-            if(root == nullptr){
-                return;
-            }
-  
-            printPostOrder(out, root->getLeft());
-            printPostOrder(out, root->getRight());
-            out<<"Node: "<<root->getValue() << " ";
-        }
-
-
-
-
-    public:
-        ABR(ifstream& in) : root(nullptr){ load(in);}
-
-        void insert(int key){ root = insertRec(root, key);}
-        Node* search(int key){ return searchN(root, key);}
-        void printPre(ofstream& out){ printPreOrder(out, root);}
-        void printPost(ofstream& out){ printPostOrder(out, root);}
-        void printIn(ofstream& out){printInOrder(out, root);}
-
-
-        Node* predecessor(int key){
-
-            Node* x = search(key);
-
-            if(x == nullptr){
-                return nullptr;
-            }
-
-            if(x->getLeft() != nullptr){
-                return maximum(x->getLeft());
-            }
-
-            Node* y;
-            y = x->getParent();
-
-            while(y != nullptr && x == y->getLeft()){
-                x = y;
-                y = y->getParent();
-            }
-
-             cout << "predecessor: " << y->getValue()<<endl;
-            return y;
-
-        }
-
-
-        Node* successor(int key){
-
-            Node* x = search(key);
-
-            if(x == nullptr){
-                return nullptr;
-            }
-
-            if(x->getRight() != nullptr){
-                return minimum(x->getRight());
-            }
-
-            Node* y = x->getParent();
-
-            while(y != nullptr && x == y->getRight()){
-                x = y;
-                y = y->getParent();
-            }
-
-            cout << "successor: " << y->getValue()<<endl;
-
-            return y;
-        }
-
-        void load(ifstream& in){
-            string totalToken;
-            while(getline(in, totalToken)){
-                if(totalToken.front() == '<')
-                    totalToken = totalToken.substr(1);
-                if(totalToken.back() == '>')
-                    totalToken.pop_back();
-
-                for(char& c : totalToken){
-                    if(c == ','){
-                        c = ' ';
-                    }
+    void print() {
+        for (int i = 0; i < size; i++) {
+            cout << "Index " << i;
+            if (hash[i].empty()) {
+                cout << " -> empty list" << endl;
+            } else {
+                for (auto& item : hash[i]) {
+                    cout << " -> [key: " << item->getKey() << " - value: " << item->getValue() << "]";
                 }
-
-                int k;
-                istringstream stream(totalToken);
-
-                while(stream >> k){
-                    insert(k);
-                }
+                cout << endl;
             }
-        }      
-
+        }
+    }
 };
 
-int main(){
+int main() {
     ifstream in("input.txt");
-    ofstream out("output.txt");
+    if (!in.is_open()) {
+        cerr << "Errore apertura file input." << endl;
+        return 1;
+    }
 
-    ABR abr(in);
-    Node* node;
+    int tableSize = 5;
 
-    node = abr.predecessor(12);
-    if(node)
-        cout << "predecessor: " << node->getValue() << endl;
-    else
-        cout << "predecessor: NONE" << endl;
-    abr.printPre(out);
-    out << endl;
-    abr.printIn(out);
-    out << endl;
-    abr.printPost(out);
-    out << endl;
-   
+    Hash<int, string> hash(in, tableSize);
+
+    hash.print();
+
+    hash.search(20, 1);
+
+    hash.deleteItem(10, 1);
+
+    hash.print();
 
     in.close();
-    out.close();
+    return 0;
 }

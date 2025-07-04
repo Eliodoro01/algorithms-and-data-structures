@@ -1,3 +1,0 @@
-Node: 40 Node: 22 Node: 12 Node: 10 Node: 21 Node: 24 Node: 99 Node: 44 
-Node: 10 Node: 12 Node: 21 Node: 22 Node: 24 Node: 40 Node: 44 Node: 99 
-Node: 10 Node: 21 Node: 12 Node: 24 Node: 22 Node: 44 Node: 99 Node: 40 
