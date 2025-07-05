@@ -1,149 +1,156 @@
 #include <iostream>
 #include <vector>
-#include <fstream>
 #include <sstream>
-#include <algorithm> // per reverse
+#include <string>
+#include <fstream>
 
 using namespace std;
 
-class MaxHeap {
-private:
-    vector<int> data;
-    int heapSize;
 
-    int getLeft(int i) { return i * 2 + 1; }
-    int getRight(int i) { return i * 2 + 2; }
+class MaxHeap{
 
-    void maxHeapify(int i) {
-        int l = getLeft(i);
-        int r = getRight(i);
-        int max = i;
+    private:
+        vector<int> heap;
+        int heapSize;
 
-        if (l < heapSize && data[l] > data[max])
-            max = l;
-        if (r < heapSize && data[r] > data[max])
-            max = r;
+        int getLeft(int i){return i * 2 + 1;}
+        int getRight(int i){return i * 2 + 2;}
+        int getParent(int i){return (i - 1)/2;}
 
-        if (max != i) {
-            swap(data[max], data[i]);
-            maxHeapify(max);
-        }
-    }
+        void maxHeapify(int i){
 
-    void buildMaxHeap() {
-        for (int i = heapSize / 2; i >= 0; i--) {
-            maxHeapify(i);
-        }
-    }
+            int l = getLeft(i);
+            int r = getRight(i);
+            int max = i;
 
-    void shiftUp(int i) {
-        while (i > 0 && data[(i - 1) / 2] < data[i]) {
-            swap(data[(i - 1) / 2], data[i]);
-            i = (i - 1) / 2;
-        }
-    }
-
-public:
-    MaxHeap() : heapSize(0) {}
-
-    void load(ifstream& in) {
-        string totalToken;
-        getline(in, totalToken);
-        if (totalToken.front() == '<')
-            totalToken = totalToken.substr(1);
-        if (totalToken.back() == '>')
-            totalToken.pop_back();
-
-        for (char& c : totalToken)
-            if (c == ',') c = ' ';
-
-        int k;
-        istringstream stream(totalToken);
-        while (stream >> k) {
-            data.push_back(k);
-        }
-
-        heapSize = data.size();
-        buildMaxHeap();
-    }
-
-    
-    int search(int key) {
-        for (int i = 0; i < heapSize; i++) {
-            if (data[i] == key) {
-                cout << "Elemento trovato all' indice: " << i << endl;
-                return i;
+            if(l < heapSize && heap[l] > heap[max])
+                max = l;
+            if(r < heapSize && heap[r] > heap[max])
+                max = r;
+            if(max != i){
+                swap(heap[max], heap[i]);
+                maxHeapify(max);
             }
         }
-        return -1;
-    }
 
-    int extractMax() {
-        if (heapSize == 0)
+        void buildMaxHeap(){
+            for(int i = heapSize / 2 ; i >=0 ; i--){
+                maxHeapify(i);
+            }
+        }
+
+        void shiftUp(int i){
+            while (i > 0 && heap[(i-1) / 2] < heap[i])
+            {
+                swap(heap[(i-1) / 2], heap[i]);
+                i = (i - 1)/2;
+            }
+            
+        }
+
+        void load(ifstream& in){
+            string totalToken;
+            while (getline(in, totalToken)) {
+                if (totalToken.front() == '<')
+                    totalToken = totalToken.substr(1);
+                if (totalToken.back() == '>')
+                    totalToken.pop_back();
+
+                for (char& c : totalToken) {
+                    if (c == ',') 
+                        c = ' ';
+                }
+
+                int k;
+                istringstream stream(totalToken);
+                while (stream >> k ) {
+                    heap.push_back(k);
+                }
+            }
+            heapSize = heap.size();
+            buildMaxHeap();
+        }
+
+    public:
+        MaxHeap(ifstream& in){
+            load(in);
+            buildMaxHeap();
+        }
+
+        void heapSort(){
+            buildMaxHeap();
+            int size = heapSize;
+
+            for(int i = heapSize - 1; i> 0; i--){
+                swap(heap[0], heap[i]);
+                heapSize--;
+                maxHeapify(0);
+            }
+
+            heapSize = size;
+        }
+
+        void print(){
+            for(int i = 0; i < heap.size(); i++){
+                cout << heap[i] << " ";
+            }
+            cout << endl;
+        }
+
+        int search(int key){
+            for(int i = 0; i < heap.size(); i++){
+                if(heap[i] == key){
+                    cout << "elemento: " << key << " trovato all'indice: " << i <<endl;
+                    return i;
+                }
+            }
+            cout << "Elemento non trovato"<<endl;
             return -1;
+        }
 
-        int max = data[0];
-        swap(data[0], data[heapSize - 1]);
-        heapSize--;
-        data.pop_back();
-        maxHeapify(0);
+        int extractMax(){
+            if(heapSize == 0){
+                return -1;
+            }
 
-        return max;
-    }
-
-    void heapSort() {
-        buildMaxHeap();
-        int originalSize = heapSize;
-        for (int i = heapSize - 1; i > 0; i--) {
-            swap(data[0], data[i]);
+            int max = heap[0];
+            swap(heap[0], heap[heapSize - 1]);
             heapSize--;
+            heap.pop_back();
             maxHeapify(0);
+            return max;
         }
-        heapSize = originalSize;
-        reverse(data.begin(), data.end());
-    }
 
-    void insert(int key) {
-        data.push_back(key);
-        heapSize++;
-        shiftUp(heapSize - 1);
-    }
-
-    void increaseKey(int oldKey, int newKey) {
-        if (oldKey > newKey)
-            return;
-
-        int index = search(oldKey);
-        if (index == -1)
-            return;
-
-        data[index] = newKey;
-        shiftUp(index);
-    }
-
-    void print() {
-        for (int i = 0; i < data.size(); i++) {
-            cout << "Data: " << data[i] << " ";
+        void increaseKey(int oldKey, int newKey){
+            if(oldKey > newKey){
+                return;
+            }
+            int i = search(oldKey);
+            heap[i] = newKey;
+            
+            shiftUp(i);
         }
-        cout << "\n";
-    }
+
 };
 
-int main() {
+
+
+int main(){
+
     ifstream in("input.txt");
 
-    MaxHeap heap;
-    heap.load(in);
+    MaxHeap heap(in);
+
     heap.print();
+    int max = heap.extractMax();
+    cout << "Il massimo e' " << max << endl;
+
+    cout<<endl<<  "dopo heap sort"<< endl;
 
     heap.heapSort();
     heap.print();
-    heap.search(30);
-    heap.increaseKey(5, 17);
-    heap.heapSort();
-    heap.print();
 
-    in.close();
-    return 0;
+    
 }
+
 //<20,5,15,30,10,25,2>

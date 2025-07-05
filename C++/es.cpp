@@ -1,250 +1,156 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
-#include <climits>
 #include <sstream>
+#include <string>
+#include <fstream>
 
 using namespace std;
 
-enum Color{white, gray, black};
 
-class Node{
-
-    private:
-        Node* predecessor;
-        Color color;
-        int value;
-        vector<Node*> adj;
-        int startVisit;
-        int finishVisit;
-
-    public:
-        Node(int v) :value(v), predecessor(nullptr), color(white), startVisit(INT_MAX), finishVisit(INT_MAX){}
-
-        int getValue(){return value;}
-        Color getColor(){return color;}
-        vector<Node*> getAdj(){return adj;}
-        int getStartVisit(){return startVisit;}
-        int getFinishVisit(){return finishVisit;}
-        Node* getPredecessor(){return predecessor;}
-
-        void setPredecessor(Node* pred){predecessor = pred;}
-        void setStartVisit(int d){startVisit = d;}
-        void setFinishVisit(int f){finishVisit = f;}
-        void setColor(Color c){color = c;}
-        void setAdj(Node* a){adj.push_back(a);}
-
-};
-
-class Edge{
+class MaxHeap{
 
     private:
-        Node* src;
-        Node* dest;
-        int weight;
-        string type;
+        vector<int> heap;
+        int heapSize;
 
-    public:
-        Edge(Node* u, Node* v, int w) : src(u), dest(v), weight(w), type(""){}
+        int getLeft(int i){return i * 2 + 1;}
+        int getRight(int i){return i * 2 + 2;}
+        int getParent(int i){return (i - 1)/2;}
 
-        int getWeight(){return weight;}
-        Node* getSrc(){return src;}
-        Node* getDest(){return dest;}
-        string getType(){return type;}
+        void maxHeapify(int i){
 
-        void setSrc(Node* u){src = u;}
-        void setDest(Node* v){dest = v;}
-        void setType(string t){type = t;}
-};
+            int l = getLeft(i);
+            int r = getRight(i);
+            int max = i;
 
+            if(l < heapSize && heap[l] > heap[max])
+                max = l;
+            if(r < heapSize && heap[r] > heap[max])
+                max = r;
+            if(max != i){
+                swap(heap[max], heap[i]);
+                maxHeapify(max);
+            }
+        }
 
-class Graph{
+        void buildMaxHeap(){
+            for(int i = heapSize / 2 ; i >=0 ; i--){
+                maxHeapify(i);
+            }
+        }
 
-    private:
-        vector<Node*> nodes;
-        vector<Edge*> edges;
-        int V, E, weights, u, v, w, time, cycleCount;
+        void shiftUp(int i){
+            while (i > 0 && heap[(i-1) / 2] < heap[i])
+            {
+                swap(heap[(i-1) / 2], heap[i]);
+                i = (i - 1)/2;
+            }
+            
+        }
 
         void load(ifstream& in){
-            string totalTokens;
-            getline(in, totalTokens);
-            if(totalTokens.front() == '<')
-                totalTokens = totalTokens.substr(1);
-            if(totalTokens.back() == '>')
-                totalTokens.pop_back();
-            for(char& c : totalTokens){
-                if(c == ',')
-                    c = ' ';
-            }
+            string totalToken;
+            while (getline(in, totalToken)) {
+                if (totalToken.front() == '<')
+                    totalToken = totalToken.substr(1);
+                if (totalToken.back() == '>')
+                    totalToken.pop_back();
 
-            istringstream stream(totalTokens);
-            stream >> V >> E;
-
-            for(int i = 0; i < V; i++){
-                addNode(i);
-            }
-
-           while(getline(in, totalTokens)){
-                if(totalTokens.front() == '<')
-                    totalTokens = totalTokens.substr(1);
-                if(totalTokens.back() == '>')
-                    totalTokens.pop_back();
-                for(char& c : totalTokens){
-                    if(c == ',')
+                for (char& c : totalToken) {
+                    if (c == ',') 
                         c = ' ';
                 }
 
-                istringstream stream(totalTokens);
-
-                while(stream >> u >> v >> w){
-                    Node* src = getNode(u);
-                    Node* dest = getNode(v);
-                    if(src != nullptr && dest != nullptr){
-                        addEdge(src, dest, w);
-                    }
-                }
-                    
-            }
-        }
-
-        void DFS_VISIT(Node* node, vector<Node*>& path){
-            node->setColor(gray);
-            time = time + 1;
-            node->setStartVisit(time);
-            path.push_back(node);
-
-            for(auto& adj : node->getAdj()){
-                Edge* edge = getEdge(node, adj);
-                if(!edge)
-                    continue;
-
-                if(adj->getColor() == white){
-                    edge->setType("dell'albero");
-                    adj->setPredecessor(node);
-
-                    DFS_VISIT(adj, path);
-                }
-
-                else if(adj->getColor() == gray){
-                    cout << "ciclo trovato"<< endl;
-                    edge->setType("all'indietro");
-                    int startIndex = -1;
-
-                    for(int i = 0; i < path.size(); i++){
-                        if(path[i] == adj){
-                            startIndex = i;
-                            break;
-                        }
-                    }
-
-                    if(startIndex != -1){
-                        for(int i = startIndex; i < path.size(); i++){
-                            cout<<path[i]->getValue() << " ";
-                        }
-                        cout << adj->getValue() << endl;
-                        cycleCount++;
-                    }
-                }
-
-                else if(adj->getColor() == black && node->getStartVisit() < adj->getStartVisit()){
-                    edge->setType("in avanti");
-                }
-                else if(adj->getColor() == black && node->getStartVisit() > adj->getStartVisit()){
-                    edge->setType("trasversale");
+                int k;
+                istringstream stream(totalToken);
+                while (stream >> k ) {
+                    heap.push_back(k);
                 }
             }
-            node->setColor(black);
-            time = time + 1;
-            node->setFinishVisit(time);
-            path.pop_back();
+            heapSize = heap.size();
+            buildMaxHeap();
         }
 
     public:
-        Graph(ifstream& in){
+        MaxHeap(ifstream& in){
             load(in);
+            buildMaxHeap();
         }
 
-        int getCycleCount(){return cycleCount;}
+        void heapSort(){
+            buildMaxHeap();
+            int size = heapSize;
 
-        Node* getNode(int key){
-            for(auto& node : nodes){
-                if(node->getValue() == key)
-                    return node;
+            for(int i = heapSize - 1; i> 0; i--){
+                swap(heap[0], heap[i]);
+                heapSize--;
+                maxHeapify(0);
             }
-           cout << "nodo non trovato"<<endl;
+
+            heapSize = size;
         }
 
-        void addEdge(Node* src, Node* dest, int w){
-
-            edges.push_back(new Edge(src, dest, w));
-            src->setAdj(dest);
-            if(edges.size() > E){
-                E = edges.size();
+        void print(){
+            for(int i = 0; i < heap.size(); i++){
+                cout << heap[i] << " ";
             }
+            cout << endl;
         }
 
-        void addNode(int val){
-            nodes.push_back(new Node(val));
-            if(nodes.size() > V){
-                V = nodes.size();
-            }
-        }
-
-        Edge* getEdge(Node* src, Node* dest){
-            for(auto& edge : edges){
-                if(edge->getSrc() == src && edge->getDest() == dest){
-                    return edge;
+        int search(int key){
+            for(int i = 0; i < heap.size(); i++){
+                if(heap[i] == key){
+                    cout << "elemento: " << key << " trovato all'indice: " << i <<endl;
+                    return i;
                 }
             }
-            cout<<"Arco non trovato"<<endl;
+            cout << "Elemento non trovato"<<endl;
+            return -1;
         }
 
-
-        void DFS(){
-            for(auto& node : nodes){
-                node->setColor(white);
-                node->setPredecessor(nullptr);
+        int extractMax(){
+            if(heapSize == 0){
+                return -1;
             }
-            vector<Node*> path;
-            cycleCount = 0;
+
+            int max = heap[0];
+            swap(heap[0], heap[heapSize - 1]);
+            heapSize--;
+            heap.pop_back();
+            maxHeapify(0);
+            return max;
+        }
+
+        void increaseKey(int oldKey, int newKey){
+            if(oldKey > newKey){
+                return;
+            }
+            int i = search(oldKey);
+            heap[i] = newKey;
             
-
-            for(auto& node : nodes){
-                if(node->getColor() == white){
-                    DFS_VISIT(node, path);
-                }
-            }
+            shiftUp(i);
         }
-
-        void printEdges(){
-            for(auto& edge : edges){
-                cout<< "Src: " << edge->getSrc()->getValue() << " Dest: "<< edge->getDest()->getValue() << " Type: "<< edge->getType() << endl; 
-            }
-        }
-
-
 
 };
+
 
 
 int main(){
 
     ifstream in("input.txt");
 
-    Graph graph(in);
+    MaxHeap heap(in);
 
-    graph.DFS();
-    cout << endl << endl;
-    graph.printEdges();
-    cout<< "Numero di cicli: " << graph.getCycleCount() << endl;
+    heap.print();
+    int max = heap.extractMax();
+    cout << "Il massimo e' " << max << endl;
 
+    cout<<endl<<  "dopo heap sort"<< endl;
+
+    heap.heapSort();
+    heap.print();
+
+    
 }
 
-/*
-<4,5>
-<0,1,1>
-<1,2,1>
-<2,3,1>
-<3,1,1>   // forma un ciclo
-<0,2,1>
-*/
+//<20,5,15,30,10,25,2>
