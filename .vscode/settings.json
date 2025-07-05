@@ -62,6 +62,7 @@
     "memory": "cpp",
     "system_error": "cpp",
     "iosfwd": "cpp",
-    "fstream": "cpp"
+    "fstream": "cpp",
+    "ostream": "cpp"
   }
 }

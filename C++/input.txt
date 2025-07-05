@@ -1,5 +1,6 @@
-<20, pippo>
-<11, cazzo>
-<30, antonio>
-<1, peppe>
-<10, elmasgrande>
+<4,5>
+<0,1,1>
+<1,2,1>
+<2,3,1>
+<3,1,1>   // forma un ciclo
+<0,2,1>
