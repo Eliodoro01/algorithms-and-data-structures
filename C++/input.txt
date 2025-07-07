@@ -1,1 +1,5 @@
-<20,5,15,30,10,25,2>
+<20, pippo>
+<11, cazzo>
+<30, antonio>
+<1, peppe>
+<10, elmasgrande>

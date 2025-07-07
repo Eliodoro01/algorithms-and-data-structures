@@ -1,156 +1,125 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include <string>
 #include <fstream>
 
 using namespace std;
 
-
-class MaxHeap{
+template<typename K, typename V>
+class Item{
 
     private:
-        vector<int> heap;
-        int heapSize;
+        K key;
+        V value;
 
-        int getLeft(int i){return i * 2 + 1;}
-        int getRight(int i){return i * 2 + 2;}
-        int getParent(int i){return (i - 1)/2;}
+    public:
+        Item(K k, V v) : key(k), value(v){}
 
-        void maxHeapify(int i){
+        K getKey(){return key;}
+        V getValue(){return value;}
 
-            int l = getLeft(i);
-            int r = getRight(i);
-            int max = i;
+        void setKey(K k){key = k;}
+        void setValue(V v){value = v;}
+};
 
-            if(l < heapSize && heap[l] > heap[max])
-                max = l;
-            if(r < heapSize && heap[r] > heap[max])
-                max = r;
-            if(max != i){
-                swap(heap[max], heap[i]);
-                maxHeapify(max);
-            }
-        }
+template<typename K, typename V>
+class HashTable{
 
-        void buildMaxHeap(){
-            for(int i = heapSize / 2 ; i >=0 ; i--){
-                maxHeapify(i);
-            }
-        }
-
-        void shiftUp(int i){
-            while (i > 0 && heap[(i-1) / 2] < heap[i])
-            {
-                swap(heap[(i-1) / 2], heap[i]);
-                i = (i - 1)/2;
-            }
-            
-        }
+    private:
+        vector<Item<K, V>*>hash;
+        int size;
 
         void load(ifstream& in){
-            string totalToken;
-            while (getline(in, totalToken)) {
-                if (totalToken.front() == '<')
-                    totalToken = totalToken.substr(1);
-                if (totalToken.back() == '>')
-                    totalToken.pop_back();
-
-                for (char& c : totalToken) {
-                    if (c == ',') 
+            string totalTokens;
+            while(getline(in, totalTokens)){
+                if(totalTokens.front() == '<')
+                    totalTokens = totalTokens.substr(1);
+                if(totalTokens.back() == '>')
+                    totalTokens.pop_back();
+                for(char& c : totalTokens){
+                    if(c == ','){
                         c = ' ';
+                    }
                 }
-
-                int k;
-                istringstream stream(totalToken);
-                while (stream >> k ) {
-                    heap.push_back(k);
+                K k; V v;
+                istringstream stream(totalTokens);
+                while(stream >> k >> v){
+                    insert(k ,v);
                 }
             }
-            heapSize = heap.size();
-            buildMaxHeap();
         }
 
     public:
-        MaxHeap(ifstream& in){
+        HashTable(ifstream& in, int s): size(s), hash(s, nullptr){
             load(in);
-            buildMaxHeap();
         }
 
-        void heapSort(){
-            buildMaxHeap();
-            int size = heapSize;
+        int hashingFunc(K key, int i){return (key + i) % size;}
 
-            for(int i = heapSize - 1; i> 0; i--){
-                swap(heap[0], heap[i]);
-                heapSize--;
-                maxHeapify(0);
-            }
-
-            heapSize = size;
-        }
-
-        void print(){
-            for(int i = 0; i < heap.size(); i++){
-                cout << heap[i] << " ";
-            }
-            cout << endl;
-        }
-
-        int search(int key){
-            for(int i = 0; i < heap.size(); i++){
-                if(heap[i] == key){
-                    cout << "elemento: " << key << " trovato all'indice: " << i <<endl;
-                    return i;
+        void insert(K key , V value){
+            Item<K,V>* item = new Item<K,V>(key, value);
+            int j, i = 0;
+            do{
+                j = hashingFunc(item->getKey(), i);
+                if(hash[j] == nullptr){
+                    hash[j] = item;
+                    return;
                 }
+                i++;
+            }while(i < size);
+        }
+
+        void deleteItem(K key){
+            int j, i = 0;
+            do{
+                j = hashingFunc(key, i);
+                if(hash[j] != nullptr && hash[j]->getKey() == key){
+                    hash[j] = nullptr;
+                    cout << " Elemento cancellato con successo" << endl;
+                    return;
+                }
+                i++;
             }
-            cout << "Elemento non trovato"<<endl;
+            while(i < size);
+        }
+
+        int search(K key){
+            int j, i =0;
+
+            do{
+                j = hashingFunc(key, i);
+                if(hash[j] != nullptr && hash[j]->getKey() == key){
+                    cout << " Elemento trovato all'indice: " << j << endl;
+                    return j;
+                }
+                i++;
+            }while(i < size);
+
             return -1;
         }
 
-        int extractMax(){
-            if(heapSize == 0){
-                return -1;
+        void print(){
+            for(int i = 0; i < size; i++){
+                if(hash[i] != nullptr){
+                    cout << "Key: " << hash[i]->getKey() << " Value: " << hash[i]->getValue() << endl;
+                }
+                else{
+                    cout << "Empty" << endl;
+                }
             }
-
-            int max = heap[0];
-            swap(heap[0], heap[heapSize - 1]);
-            heapSize--;
-            heap.pop_back();
-            maxHeapify(0);
-            return max;
-        }
-
-        void increaseKey(int oldKey, int newKey){
-            if(oldKey > newKey){
-                return;
-            }
-            int i = search(oldKey);
-            heap[i] = newKey;
-            
-            shiftUp(i);
         }
 
 };
-
 
 
 int main(){
 
     ifstream in("input.txt");
 
-    MaxHeap heap(in);
+    HashTable<int , string> hash(in, 10);
 
-    heap.print();
-    int max = heap.extractMax();
-    cout << "Il massimo e' " << max << endl;
-
-    cout<<endl<<  "dopo heap sort"<< endl;
-
-    heap.heapSort();
-    heap.print();
-
-    
+    hash.print();
+    cout<<"dopo la delete"<<endl;
+    hash.deleteItem(10);
+    hash.print();
 }
-
-//<20,5,15,30,10,25,2>

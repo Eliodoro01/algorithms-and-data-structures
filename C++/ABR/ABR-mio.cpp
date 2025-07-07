@@ -94,9 +94,9 @@ class ABR{
             if(root == nullptr)
                 return;
             
-            printPost(root->getLeft(), out);
+            printIn(root->getLeft(), out);
             out << " key: "<< root->getValue()<<endl;
-            printPost(root->getRight(), out);
+            printIn(root->getRight(), out);
         }
 
         Node* searchN(Node* x, int key){
