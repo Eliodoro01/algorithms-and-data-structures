@@ -141,3 +141,14 @@ int main(){
     hash.print();
     
 }
+/*<20>
+<30>
+<10>
+<5>
+<15>
+
+<pippo>
+<pluto>
+<prova>
+<test>
+<lol>*/

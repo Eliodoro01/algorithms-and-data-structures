@@ -40,7 +40,7 @@ dfs_visit(node) {
     }
 
     else if (adj_node.color == black && node.d < adj_node.d) { //Il tempo di inizio visita del padre (nodo sorgente) è maggiore del tempo di inizio visita del nodo destinazione
-      trasversal_edges++    
+      forward_edges++    
     } 
   }
 
