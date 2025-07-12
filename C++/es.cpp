@@ -1,143 +1,246 @@
 #include <iostream>
 #include <fstream>
-#include <sstream>
 #include <vector>
+#include <climits>
+#include <sstream>
 
 using namespace std;
 
-template<typename K, typename V>
-class Item{
+enum Color{white, gray, black};
+
+class Node{
 
     private:
-        K key;
-        V value;
+        Node* predecessor;
+        Color color;
+        int value;
+        vector<Node*> adj;
+        int startVisit;
+        int finishVisit;
 
     public:
-        Item(K k, V v): key(k), value(v){}
+        Node(int v) :value(v), predecessor(nullptr), color(white), startVisit(INT_MAX), finishVisit(INT_MAX){}
 
-        void setKey(K k){key = k;}
-        void setValue(V v){value = v;}
+        int getValue(){return value;}
+        Color getColor(){return color;}
+        vector<Node*> getAdj(){return adj;}
+        int getStartVisit(){return startVisit;}
+        int getFinishVisit(){return finishVisit;}
+        Node* getPredecessor(){return predecessor;}
 
-        K getKey(){return key;}
-        V getValue(){return value;}
+        void setPredecessor(Node* pred){predecessor = pred;}
+        void setStartVisit(int d){startVisit = d;}
+        void setFinishVisit(int f){finishVisit = f;}
+        void setColor(Color c){color = c;}
+        void setAdj(Node* a){adj.push_back(a);}
+
 };
 
-template<typename K, typename V>
-class HashTable{
+class Edge{
 
     private:
-        vector<Item<K,V>*> table;
-        int size;
+        Node* src;
+        Node* dest;
+        int weight;
+        string type;
 
-        void load(ifstream& in1, ifstream& in2){
-            string keyLine, valueLine;
-            while(getline(in1, keyLine) && getline(in2, valueLine)){
-                if(keyLine.front() == '<')
-                    keyLine = keyLine.substr(1);
-                if(keyLine.back() == '>')
-                    keyLine.pop_back();
-                for(char& c : keyLine){
+    public:
+        Edge(Node* u, Node* v, int w) : src(u), dest(v), weight(w), type(""){}
+
+        int getWeight(){return weight;}
+        Node* getSrc(){return src;}
+        Node* getDest(){return dest;}
+        string getType(){return type;}
+
+        void setSrc(Node* u){src = u;}
+        void setDest(Node* v){dest = v;}
+        void setType(string t){type = t;}
+};
+
+
+class Graph{
+
+    private:
+        vector<Node*> nodes;
+        vector<Edge*> edges;
+        int V, E, weights, u, v, w, time, cycleCount;
+        vector<Node*> path;
+
+        void load(ifstream& in){
+            string totalTokens;
+            getline(in, totalTokens);
+            if(totalTokens.front() == '<')
+                totalTokens = totalTokens.substr(1);
+            if(totalTokens.back() == '>')
+                totalTokens.pop_back();
+            for(char& c : totalTokens){
+                if(c == ',')
+                    c = ' ';
+            }
+
+            istringstream stream(totalTokens);
+            stream >> V >> E;
+
+            for(int i = 0; i < V; i++){
+                addNode(i);
+            }
+
+           while(getline(in, totalTokens)){
+                if(totalTokens.front() == '<')
+                    totalTokens = totalTokens.substr(1);
+                if(totalTokens.back() == '>')
+                    totalTokens.pop_back();
+                for(char& c : totalTokens){
                     if(c == ',')
                         c = ' ';
                 }
-                istringstream keyStream(keyLine);
-                K k;
-                keyStream >> k;
 
-                if(valueLine.front() == '<')
-                    valueLine = valueLine.substr(1);
-                if(valueLine.back() == '>')
-                    valueLine.pop_back();
-                for(char& c : valueLine){
-                    if(c == ',')
-                        c = ' ';
+                istringstream stream(totalTokens);
+
+                while(stream >> u >> v >> w){
+                    Node* src = getNode(u);
+                    Node* dest = getNode(v);
+                    if(src != nullptr && dest != nullptr){
+                        addEdge(src, dest, w);
+                    }
                 }
-                istringstream valueStream(valueLine);
-                V v;
-                valueStream >> v;
-
-                insert(new Item<K, V>(k, v));
+                    
             }
         }
 
-        int hashFunc(K key, int i){
-            return (key + i) % size;
+        void dfsVisit(Node* node){
+
+            node->setColor(gray);
+            time = time + 1;
+            node->setStartVisit(time);
+            path.push_back(node);
+
+            for(auto& adj : node->getAdj()){
+                Edge* edge = getEdge(node, adj);
+                if(adj->getColor() == white){
+                    edge->setType("dell'albero");
+                    adj->setPredecessor(node);
+                    dfsVisit(adj);
+                }
+                else if(adj->getColor() == gray){
+                    cout << "Ciclo trovato" << endl;
+                    edge->setType("all'indietro");
+
+                    int startIndex = -1;
+
+                    for(int i = 0; i < path.size(); i++){
+                        if(path[i] == adj){
+                            startIndex = i;
+                            break;
+                        }
+                    }
+
+                    if(startIndex != -1){
+                        for(int i = startIndex; i < path.size(); i++){
+                            cout << path[i]->getValue() << " ";
+                        }
+                        cout << adj->getValue()<<endl;
+                        cycleCount++;
+                    }
+                }
+
+                else if(adj->getColor() == black && node->getStartVisit() > node->getFinishVisit())
+                    edge->setType("trasversale");
+                else if(adj->getColor() == black && node->getStartVisit() < node->getFinishVisit())
+                    edge->setType("in avanti");
+            }
+            node->setColor(black);
+            time = time+1;
+            node->setFinishVisit(time);
+            path.pop_back();
         }
+
+        
 
     public:
-        HashTable(ifstream& in1, ifstream& in2, int s) : size(s), table(s, nullptr){
-            load(in1,in2);
+        Graph(ifstream& in) : cycleCount(0){
+            load(in);
         }
 
-        void insert(Item<K, V>* item){
-            int j, i = 0;
-            do{
-                j = hashFunc(item->getKey(), i);
-                if(table[j] == nullptr){
-                    table[j] = item;
-                    break;
-                }
-                i++;
-            }while(i<size);
-        }
+        int getCycleCount(){return cycleCount;}
 
-        void deleteItem(Item<K,V>* item){
-            int j , i = 0;
-
-            do{
-                j = hashFunc(item->getKey(), i);
-                if(table[j] != nullptr && table[j]->getKey() == item->getKey()){
-                    table[j] = nullptr;
-                    cout << "Elemento cancellato con successo" << endl;
-                    break;
-                }
-                i++;
+        Node* getNode(int key){
+            for(auto& node : nodes){
+                if(node->getValue() == key)
+                    return node;
             }
-            while(i < size);
+           cout << "nodo non trovato"<<endl;
         }
 
-        int searchItem(Item<K,V>* item){
+        void addEdge(Node* src, Node* dest, int w){
 
-            int j, i = 0;
-            do{
-                j = hashFunc(item->getKey(), i);
-                if(table[j] != nullptr && table[j]->getKey() == item->getKey()){
-                    cout << "Elemento trovato all' indice: "<< j << endl;
-                    return j;
-                }
-                i++;
-            }while(i < size);
-            cout << "Elemento non trovato" << endl;
-            
-        }
-
-
-        void print(){
-            for(int i = 0; i < table.size(); i++){
-                if(table[i] != nullptr)
-                    cout << "Key -> " << table[i]->getKey() << " Value -> " << table[i]->getValue() << endl;
-                else
-                    cout << "Empty" << endl;
+            edges.push_back(new Edge(src, dest, w));
+            src->setAdj(dest);
+            if(edges.size() > E){
+                E = edges.size();
             }
         }
+
+        void addNode(int val){
+            nodes.push_back(new Node(val));
+            if(nodes.size() > V){
+                V = nodes.size();
+            }
+        }
+
+        Edge* getEdge(Node* src, Node* dest){
+            for(auto& edge : edges){
+                if(edge->getSrc() == src && edge->getDest() == dest){
+                    return edge;
+                }
+            }
+            cout<<"Arco non trovato"<<endl;
+        }
+
+        void dfs(){
+            for(auto& node : nodes){
+                node->setColor(white);
+                node->setPredecessor(nullptr);
+            }
+
+            for(auto& node : nodes){
+                if(node->getColor() == white){
+                    dfsVisit(node);
+                }
+            }
+        }
+
+
+        
+
+        void printEdges(){
+            for(auto& edge : edges){
+                cout<< "Src: " << edge->getSrc()->getValue() << " Dest: "<< edge->getDest()->getValue() << " Type: "<< edge->getType() << endl; 
+            }
+        }
+
 
 };
+
 
 int main(){
 
-    ifstream in1("input.txt");
-    ifstream in2("input2.txt");
+    ifstream in("input.txt");
 
-    
-    HashTable<int, string> hash(in1, in2, 10);
+    Graph graph(in);
 
-    hash.print();
-    
-    Item<int, string>* item = new Item<int, string>(20, "pippo");
-    
-    hash.searchItem(item);
+    graph.dfs();
+    cout << endl << endl;
+    graph.printEdges();
+    cout<< "Numero di cicli: " << graph.getCycleCount() << endl;
 
-    hash.deleteItem(item);
-    hash.print();
-    
 }
+
+/*
+<4,5>
+<0,1,1>
+<1,2,1>
+<2,3,1>
+<3,1,1>   // forma un ciclo
+<0,2,1>
+*/
