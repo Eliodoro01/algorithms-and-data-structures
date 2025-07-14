@@ -1,10 +1,9 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <fstream>
 #include <sstream>
-#include <stack>
-#include <queue>
 #include <climits>
+#include <stack>
 
 using namespace std;
 
@@ -15,29 +14,26 @@ class Node{
     private:
         Node* predecessor;
         vector<Node*> adj;
-        Color color;
         int value;
-        int distance;
         int startVisit;
         int endVisit;
+        Color color;
 
     public:
-        Node(int v) : value(v), predecessor(nullptr), color(white), distance(INT_MAX){}
-
-        Node* getPredecessor(){return predecessor;}
-        vector<Node*> getAdj(){return adj;}
-        Color getColor(){return color;}
-        int getValue(){return value;}
-        int getDistance(){return distance;}
-        int getStartVisit(){return startVisit;}
-        int getEndVisit(){return endVisit;}
+        Node(int v) : value(v), predecessor(nullptr), color(white), startVisit(INT_MAX), endVisit(INT_MAX){}
 
         void setPredecessor(Node* p){predecessor = p;}
-        void setAdj(Node* a){adj.push_back(a);}
-        void setDistance(int d){distance = d;}
+        void setStartVisit(int s){startVisit = s;}
+        void setEndVisit(int e){endVisit = e;}
         void setColor(Color c){color = c;}
-        void setStartVisit(int d){startVisit = d;}
-        void setEndVisit(int f){endVisit = f;}
+        void setAdj(Node* a){adj.push_back(a);}
+
+        int getValue(){return value;}
+        int getStartVisit(){return startVisit;}
+        int getEndVisit(){return endVisit;}
+        Color getColor(){return color;}
+        vector<Node*> getAdj(){return adj;}
+        Node* getPredecessor(){return predecessor;}
 
 };
 
@@ -53,28 +49,28 @@ class Edge{
     public:
         Edge(Node* u, Node* v, int w): src(u), dest(v), weight(w), type(""){}
 
-        void setSrc(Node* u){src = u;}
-        void setDest(Node* v){dest = v;}
-        void setType(string t){type = t;}
-        
+        int getWeight(){return weight;}
         Node* getSrc(){return src;}
         Node* getDest(){return dest;}
-        int getWeight(){return weight;}
         string getType(){return type;}
+
+        void setType(string t){type = t;}
+        void setSrc(Node* u){src = u;}
+        void setDest(Node* v){dest = v;}
+
 };
 
 
 class Graph{
 
     private:
-        vector<Node*>nodes;
+        vector<Node*> nodes;
         vector<Edge*> edges;
-        int V, E, cycleCount, time = 0;
+        int V, E, u, v, w, cycleCount = 0, time;
         stack<Node*> S;
-        stack<Node*> topo;
+        stack<Node*> T;
         vector<Node*> path;
         vector<bool>visited;
-        stack<Node*>L;
 
         void load(ifstream& in){
             string totalTokens;
@@ -87,15 +83,14 @@ class Graph{
                 if(c == ',')
                     c = ' ';
             }
-            int u, v, w;
+
             istringstream stream(totalTokens);
             stream >> V >> E;
-
             for(int i = 0; i < V; i++){
                 addNode(i);
             }
 
-            while (getline(in, totalTokens)){
+            while(getline(in, totalTokens)){
                 if(totalTokens.front() == '<')
                 totalTokens = totalTokens.substr(1);
                 if(totalTokens.back() == '>')
@@ -106,27 +101,35 @@ class Graph{
                 }
 
                 istringstream stream(totalTokens);
-                stream >> u >> v >> w;
-                Node* src = getNode(u);
-                Node* dest = getNode(v);
-                addEdge(src, dest, w);
-
-                stream.clear();
-                stream.str("");
+                while(stream >> u >> v >> w){
+                    Node* src = getNode(u);
+                    Node* dest = getNode(v);
+                    addEdge(src, dest, w);
+                }
             }
-            
+
         }
 
         void addNode(int key){
             nodes.push_back(new Node(key));
-
             if(nodes.size() > V){
                 V = nodes.size();
             }
         }
 
-        void addEdge(Node* src, Node* dest, int w){
-            edges.push_back(new Edge(src, dest, w));
+        Node* getNode(int key){
+            for(auto& node : nodes){
+                if(node->getValue() == key){
+                    return node;
+                }
+            }
+            cout << "Nodo non trovato" <<endl;
+            return nullptr;
+        }
+
+        void addEdge(Node* src, Node* dest, int weight){
+
+            edges.push_back(new Edge(src, dest, weight));
             src->setAdj(dest);
 
             if(edges.size() > E){
@@ -135,6 +138,7 @@ class Graph{
         }
 
         Edge* getEdge(Node* src, Node* dest){
+
             for(auto& edge : edges){
                 if(edge->getSrc() == src && edge->getDest() == dest){
                     return edge;
@@ -144,9 +148,9 @@ class Graph{
             return nullptr;
         }
 
-        void dfsVisit(Node* node){
+        void dfsVisitTop(Node* node){
             node->setColor(gray);
-            ++time;
+            time = time + 1;
             node->setStartVisit(time);
             path.push_back(node);
 
@@ -154,15 +158,14 @@ class Graph{
                 Edge* edge = getEdge(node, adj);
 
                 if(adj->getColor() == white){
-                    edge->setType("Dell'albero");
+                    edge->setType("Delle'albero");
+
                     adj->setPredecessor(node);
-
-                    dfsVisit(adj);
+                    dfsVisitTop(adj);
                 }
-
                 else if(adj->getColor() == gray){
-                    cout << "Ciclo trovato" << endl;
                     edge->setType("All'indietro");
+                    cout << "Ciclo trovato" << endl;
 
                     int startIndex = -1;
 
@@ -172,15 +175,14 @@ class Graph{
                             break;
                         }
                     }
-                    
+
                     if(startIndex != -1){
                         for(int i = startIndex; i < path.size(); i++){
-                            cout << path[i]->getValue() << " ";       
+                            cout << path[i]->getValue() << " ";
                         }
-                        cout << adj->getValue() << " " << endl;
+                        cout << adj->getValue() << endl;
                         cycleCount++;
                     }
-
                 }
                 else if(adj->getColor() == black && node->getStartVisit() > adj->getStartVisit())
                     edge->setType("Trasversale");
@@ -188,19 +190,10 @@ class Graph{
                     edge->setType("In avanti");
             }
             node->setColor(black);
-            ++time;
+            time = time + 1;
             node->setEndVisit(time);
-            topo.push(node);
-        }
-
-        void fillOrder(Node* node){
-            node->setColor(gray);
-            for(auto* adj : node->getAdj()){
-                if(adj->getColor() == white){
-                    fillOrder(adj);
-                }
-            }
-            L.push(node);
+            path.pop_back();
+            T.push(node);
         }
 
         Graph* getTranspose(){
@@ -220,16 +213,29 @@ class Graph{
             return gt;
         }
 
-        void dfsUtil(Node* node){
+        void fillOrder(Node* node){
+            node->setColor(gray);
+            for(auto& adj : node->getAdj()){
+                if(adj->getColor() == white){
+                    fillOrder(adj);
+                }
+            }
+            node->setColor(black);
+            S.push(node);
+        }
 
+        void DFSUtil(Node* node){
             visited[node->getValue()] = true;
             cout << node->getValue() << " ";
-            for(Node* adj : node->getAdj()){
+            for(auto& adj : node->getAdj()){
                 if(!visited[adj->getValue()]){
-                    dfsUtil(adj);
+                    DFSUtil(adj);
                 }
             }
         }
+
+        
+
 
     public:
         Graph(ifstream& in){
@@ -237,81 +243,29 @@ class Graph{
         }
 
         Graph(){}
+        int getCycle(){return cycleCount;}
 
-        Node* getNode(int key){
-            for(auto& node : nodes){
-                if(node->getValue() == key){
-                    return node;
-                }
-            }
-            cout << "Nodo non trovato" << endl;
-            return nullptr;
-        }
-
-        void bfs(Node* source){
-
-            for(auto& node : nodes){
-                node->setColor(white);
-                node->setDistance(INT_MAX);
-                node->setPredecessor(nullptr);
-            }
-
-            source->setDistance(0);
-            source->setColor(gray);
-
-            queue<Node*> q;
-            q.push(source);
-
-            while(!q.empty()){
-                Node* node = q.front();
-                q.pop();
-
-                for(auto& adj : node->getAdj()){
-                    if(adj->getColor() == white){
-                        adj->setPredecessor(node);
-                        adj->setDistance(node->getDistance() + 1);
-                        adj->setColor(gray);
-
-                        q.push(adj);
-                    }
-                }
-                node->setColor(black);
-            }
-        
-        }
-
-        void dfs(){
-
+        void dfsTop(){
             for(auto& node : nodes){
                 node->setColor(white);
                 node->setPredecessor(nullptr);
             }
 
-            for(auto& node: nodes){
-                if(node->getColor() == white){
-                    dfsVisit(node);
-                }
-            }
-        }
-
-        void print(){
             for(auto& node : nodes){
-                if(node->getPredecessor() != nullptr)
-                    cout << "Node->"<< node->getValue() << " Predecessor->" << node->getPredecessor()->getValue() << " Distance->" << node->getDistance() << endl; 
-                else
-                    cout << "Node->"<< node->getValue() << " Predecessor-> nullptr"  << " Distance->" << node->getDistance() << endl;
+                if(node->getColor() == white)
+                    dfsVisitTop(node);
             }
         }
 
-        void printTopo(){
-            cout << "Stampa topologica: " << endl;
-            while (!topo.empty()){
-                Node* node = topo.top();
-                topo.pop();
+        void topologicalPrint(){
+            
+            while(!T.empty()){
+                Node* node = T.top();
+                T.pop();
                 cout << node->getValue() << " ";
             }
-            
         }
+
 
         void printSCC(){
 
@@ -328,13 +282,13 @@ class Graph{
             Graph* gt = getTranspose();
             visited.assign(V, false);
 
-            cout <<"Componenti fortemente connesse:" << endl;
-
-            while(!L.empty()){
-                Node* node = L.top();
-                L.pop();
-                if(!visited[node->getValue()]){
-                    dfsUtil(gt->getNode(node->getValue()));
+            cout<< "Componenti fortemente connese: \n";
+            while(!S.empty()){
+                Node* node = S.top();
+                S.pop();
+                int idx = node->getValue();
+                if(!visited[idx]){
+                    DFSUtil(gt->getNode(idx));
                     cout << endl;
                 }
             }
@@ -344,32 +298,35 @@ class Graph{
 
         void printEdges(){
             for(auto& edge : edges){
-                if(edge->getSrc() != nullptr && edge->getDest() != nullptr)
-                    cout << "Src->" << edge->getSrc()->getValue() << " Dest->" << edge->getDest()->getValue() << " Type->" << edge->getType() << endl;
-                else
-                    cout << "Nullptr" << endl;
+                cout<< "Src: " << edge->getSrc()->getValue() << " Dest: "<< edge->getDest()->getValue() << " Type: "<< edge->getType() << endl; 
             }
         }
 
 };
 
 
-int main(){
-
-
+int main() {
     ifstream in("input.txt");
 
-    Graph gp(in);
+    Graph graph(in);
 
-    Node* x = gp.getNode(0);
+    graph.dfsTop();
+    cout << endl << endl;
+    graph.printEdges();
+    cout << "Numero di cicli: " << graph.getCycle() << endl;
 
-    gp.bfs(x);
-    gp.print();
+    graph.printSCC();
 
-    gp.dfs();
-    gp.printEdges();
-
-    gp.printSCC();
-
+    return 0;
 }
 
+/*
+<6,7>
+<0,1,1>
+<1,2,1>
+<2,0,1>
+<3,4,1>
+<4,5,1>
+<5,3,1>
+<2,3,1>
+*/
