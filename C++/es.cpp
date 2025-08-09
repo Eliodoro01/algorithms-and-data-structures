@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+<<<<<<< Updated upstream
 #include <vector>
 #include <sstream>
 #include <stack>
@@ -100,11 +101,57 @@ class Graph{
                 totalTokens = totalTokens.substr(1);
                 if(totalTokens.back() == '>')
                     totalTokens.pop_back();
+=======
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class MinHeap{
+
+    private:
+        vector<int>data;
+        int heapSize;
+
+        int getLeft(int i){return 2 * i + 1;}
+        int getRight(int i){return 2 * i + 2;}
+
+        void minHeapify(int i){
+            int l = getLeft(i);
+            int r = getRight(i);
+            int min = i;
+
+            if(l < heapSize && data[l] < data[min])
+                min = l;
+            if(r < heapSize && data[r] < data[min])
+                min = r;
+            if(min != i){
+                swap(data[i], data[min]);
+                minHeapify(min);
+            }
+        }
+
+        void buildMinHeap(){
+            for(int i = heapSize / 2; i >= 0; i--){
+                minHeapify(i);
+            }
+        }
+
+        void load(ifstream& in){
+            string totalTokens;
+            while(getline(in, totalTokens)){
+                if(totalTokens.front() == '<')
+                    totalTokens = totalTokens.substr(1);
+                if(totalTokens.back() == '>')
+                    totalTokens.pop_back();
+
+>>>>>>> Stashed changes
                 for(char& c : totalTokens){
                     if(c == ',')
                         c = ' ';
                 }
 
+<<<<<<< Updated upstream
                 istringstream stream(totalTokens);
                 stream >> u >> v >> w;
                 Node* src = getNode(u);
@@ -227,11 +274,31 @@ class Graph{
             for(Node* adj : node->getAdj()){
                 if(!visited[adj->getValue()]){
                     dfsUtil(adj);
+=======
+                int k;
+                istringstream stream(totalTokens);
+
+                while(stream >> k){
+                    data.push_back(k);
+>>>>>>> Stashed changes
                 }
+
+                heapSize = data.size();
+                buildMinHeap();
+
             }
         }
 
+        void shiftUp(int i){
+            while(i > 0 && data[(i - 1)/ 2] > data[i]){
+                swap(data[(i-1)/2], data[i]);
+                i = (i - 1)/2;
+            }
+        }
+
+
     public:
+<<<<<<< Updated upstream
         Graph(ifstream& in){
             load(in);
         }
@@ -349,6 +416,70 @@ class Graph{
                 else
                     cout << "Nullptr" << endl;
             }
+=======
+
+        MinHeap(ifstream& in){
+            load(in);
+        }
+
+        void heapSort(){
+
+            buildMinHeap();
+            int originalSize = heapSize;
+
+            for(int i = heapSize - 1; i >=0; i--){
+                swap(data[0], data[i]);
+                heapSize--;
+                minHeapify(0);
+            }
+
+            heapSize = originalSize;
+
+             for(int i = 0; i < data.size()/2; i++) {
+                swap(data[i], data[data.size()-1-i]);
+            }
+        }
+
+        int search(int key){
+            for(int i = 0; i < heapSize; i++){
+                if(data[i] == key){
+                    cout << "Elemento trovato all'indice: " << i << endl;
+                    return i;
+                }
+            }
+
+            cout << "Elemento non trovato"<<endl;
+            return -1;
+        }
+
+
+        void decreaseKey(int oldKey, int newKey){
+            if(newKey > oldKey){
+                return;
+            }
+
+            int index = search(oldKey);
+            data[index] = newKey;
+            shiftUp(index);
+
+        }
+
+        void print(){
+            for(int i = 0; i < heapSize; i++){
+                cout << data[i] << " ";
+            }
+            cout<<endl;
+        }
+
+        int extractMin(){
+            buildMinHeap();
+            int min = data[0];
+            swap(data[0], data[heapSize - 1]);
+            heapSize--;
+            minHeapify(0);
+
+            return min;
+>>>>>>> Stashed changes
         }
 
 };
@@ -359,6 +490,7 @@ int main(){
 
     ifstream in("input.txt");
 
+<<<<<<< Updated upstream
     Graph gp(in);
 
     Node* x = gp.getNode(0);
@@ -373,3 +505,23 @@ int main(){
 
 }
 
+=======
+    MinHeap heap(in);
+
+    heap.print();
+
+    cout<< "Dopo heap sort"<<endl;
+    heap.heapSort();
+    heap.print();
+
+    cout << "Dopo decrease Key"<<endl;
+    heap.decreaseKey(10, 9);
+    heap.print();
+
+    cout<< "Il minimo é: " << heap.extractMin()<<endl;
+    cout << "Dopo extract min "<<endl;
+    heap.print();
+
+    in.close();
+} 
+>>>>>>> Stashed changes
