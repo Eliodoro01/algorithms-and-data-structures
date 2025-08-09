@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 #include <vector>
 #include <sstream>
 #include <stack>
@@ -110,6 +111,16 @@ using namespace std;
 class MinHeap{
 
     private:
+=======
+#include <sstream>
+#include <vector>
+
+using namespace std;
+
+class MinHeap{
+
+    private:
+>>>>>>> Stashed changes
         vector<int>data;
         int heapSize;
 
@@ -134,6 +145,7 @@ class MinHeap{
         void buildMinHeap(){
             for(int i = heapSize / 2; i >= 0; i--){
                 minHeapify(i);
+<<<<<<< Updated upstream
             }
         }
 
@@ -389,8 +401,36 @@ class MinHeap{
             for(auto& node : nodes){
                 if(node->getColor() == white){
                     fillOrder(node);
-                }
+=======
             }
+        }
+
+        void load(ifstream& in){
+            string totalTokens;
+            while(getline(in, totalTokens)){
+                if(totalTokens.front() == '<')
+                    totalTokens = totalTokens.substr(1);
+                if(totalTokens.back() == '>')
+                    totalTokens.pop_back();
+
+                for(char& c : totalTokens){
+                    if(c == ',')
+                        c = ' ';
+                }
+
+                int k;
+                istringstream stream(totalTokens);
+
+                while(stream >> k){
+                    data.push_back(k);
+>>>>>>> Stashed changes
+                }
+
+                heapSize = data.size();
+                buildMinHeap();
+
+            }
+<<<<<<< Updated upstream
 
             Graph* gt = getTranspose();
             visited.assign(V, false);
@@ -417,6 +457,19 @@ class MinHeap{
                     cout << "Nullptr" << endl;
             }
 =======
+=======
+        }
+
+        void shiftUp(int i){
+            while(i > 0 && data[(i - 1)/ 2] > data[i]){
+                swap(data[(i-1)/2], data[i]);
+                i = (i - 1)/2;
+            }
+        }
+
+
+    public:
+>>>>>>> Stashed changes
 
         MinHeap(ifstream& in){
             load(in);
@@ -479,6 +532,9 @@ class MinHeap{
             minHeapify(0);
 
             return min;
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         }
 
@@ -490,6 +546,7 @@ int main(){
 
     ifstream in("input.txt");
 
+<<<<<<< Updated upstream
 <<<<<<< Updated upstream
     Graph gp(in);
 
@@ -506,6 +563,8 @@ int main(){
 }
 
 =======
+=======
+>>>>>>> Stashed changes
     MinHeap heap(in);
 
     heap.print();
@@ -523,5 +582,9 @@ int main(){
     heap.print();
 
     in.close();
+<<<<<<< Updated upstream
+} 
+>>>>>>> Stashed changes
+=======
 } 
 >>>>>>> Stashed changes
